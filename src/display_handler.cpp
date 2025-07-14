@@ -202,12 +202,12 @@ void DisplayHandler::drawSystemPage() {
     drawHeader("System");
     
     // Uptime
-    display->drawStr(0, 25, "Uptime:");
-    display->drawStr(50, 25, formatUptime(displayData.systemUptime).c_str());
+    display->drawStr(0, 20, "Uptime:");
+    display->drawStr(60, 20, formatUptime(displayData.systemUptime).c_str());
     
     // Free heap
-    display->drawStr(0, 35, "Heap:");
-    display->drawStr(50, 35, formatMemory(displayData.systemFreeHeap).c_str());
+    display->drawStr(0, 32, "Heap:");
+    display->drawStr(60, 32, formatMemory(displayData.systemFreeHeap).c_str());
     
     // Memory usage bar
     size_t totalHeap = 327680; // Approximate total heap for ESP32-S3
@@ -217,9 +217,15 @@ void DisplayHandler::drawSystemPage() {
     // Temperature (if available)
     if (displayData.systemTemperature > 0) {
         char tempStr[16];
-        snprintf(tempStr, sizeof(tempStr), "Temp: %.1f°C", displayData.systemTemperature);
-        display->drawStr(0, 60, tempStr);
+        snprintf(tempStr, sizeof(tempStr), "%.1f C", displayData.systemTemperature);
+        display->drawStr(0, 44, "Temp:");
+        display->drawStr(60, 44, tempStr);
     }
+    // Battery Voltage and Percentage
+    display->drawStr(0, 56, "Batt:");
+    char battStr[32];
+    snprintf(battStr, sizeof(battStr), "%.2fV %.0f%%", displayData.batteryVoltage, displayData.batteryPercentage);
+    display->drawStr(60, 56, battStr);
 }
 
 void DisplayHandler::drawHeader(const char* title) {
@@ -360,10 +366,12 @@ void DisplayHandler::updateLoRaInfo(bool joined, int rssi, float snr, const Stri
     displayData.loraStatus = status;
 }
 
-void DisplayHandler::updateSystemInfo(unsigned long uptime, size_t freeHeap, float temperature) {
+void DisplayHandler::updateSystemInfo(unsigned long uptime, size_t freeHeap, float temperature, float batteryVoltage, float batteryPercentage) {
     displayData.systemUptime = uptime;
     displayData.systemFreeHeap = freeHeap;
     displayData.systemTemperature = temperature;
+    displayData.batteryVoltage = batteryVoltage;
+    displayData.batteryPercentage = batteryPercentage;
 }
 
 void DisplayHandler::showMessage(const String& message, int duration) {

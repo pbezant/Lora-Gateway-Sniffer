@@ -57,7 +57,8 @@ public:
     // Data transmission
     bool sendData(const String& data, uint8_t port = 1, bool confirmed = false);
     bool sendGPSData(float latitude, float longitude, float altitude, int satellites);
-    bool sendStatusData(unsigned long uptime, size_t freeHeap);
+    bool sendStatusData(unsigned long uptime, size_t freeHeap, float batteryVoltage, float batteryPercentage, bool hasGPS, float lat, float lon, float alt, int sats);
+    bool sendGatewayDiscoveryData(float latitude, float longitude, float altitude, int satellites, float rssi, float snr);
     
     // Status and monitoring
     bool isJoined() const { return joined; }
@@ -74,6 +75,19 @@ public:
     void printStatus();
     void printNetworkInfo();
     String getErrorString(int16_t errorCode);
+    
+    // Gateway discovery tracking
+    void trackGatewayDiscovery(float latitude, float longitude, float altitude, int satellites);
+    bool hasSignificantSignalChange(float newRssi, float newSnr);
+    void enableGatewayDiscovery(bool enable = true);
+    
+    // Gateway discovery tracking variables
+    bool gatewayDiscoveryEnabled;
+    float lastGatewayRssi;
+    float lastGatewaySnr;
+    unsigned long lastGatewayDiscoveryTime;
+    static const float SIGNAL_CHANGE_THRESHOLD;
+    static const unsigned long MIN_DISCOVERY_INTERVAL;
 };
 
 #endif // LORA_HANDLER_H 

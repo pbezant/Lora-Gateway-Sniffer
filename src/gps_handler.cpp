@@ -1,6 +1,6 @@
 #include "gps_handler.h"
 
-GPSHandler::GPSHandler() : gpsSerial(nullptr), lastUpdate(0), lastValidFix(0), initialized(false),
+GPSHandler::GPSHandler() : gpsSerial(nullptr), lastUpdate(0), lastValidFix(0), initialized(false), gpsPowered(false),
                           totalSentences(0), failedChecksums(0), passedChecksums(0) {
     Serial.println(F("[GPS] Handler created"));
 }
@@ -15,6 +15,14 @@ GPSHandler::~GPSHandler() {
 
 bool GPSHandler::initialize() {
     Serial.println(F("[GPS] Initializing GPS handler..."));
+    
+    // V1.1 hardware requires GPIO 3 to be HIGH to power on the GPS module
+    pinMode(GPS_PWR_PIN, OUTPUT);
+    digitalWrite(GPS_PWR_PIN, HIGH);
+    Serial.println(F("[GPS] GPS power enabled (V1.1 compatibility)"));
+    
+    // Small delay to allow GPS module to power up
+    delay(100);
     
     // Initialize GPS serial communication
     gpsSerial = &Serial1;
@@ -34,6 +42,7 @@ bool GPSHandler::initialize() {
     }
     
     initialized = true;
+    gpsPowered = true;
     lastUpdate = millis();
     
     Serial.println(F("[GPS] [SUCCESS] GPS handler initialized"));
@@ -50,19 +59,63 @@ void GPSHandler::update() {
     while (gpsSerial->available()) {
         char c = gpsSerial->read();
         if (gps.encode(c)) {
-            updateGPSData();
+            // New data available
+            if (gps.location.isValid()) {
+                currentData.isValid = true;
+                currentData.latitude = gps.location.lat();
+                currentData.longitude = gps.location.lng();
+                currentData.age = gps.location.age();
+                lastValidFix = millis();
+                
+                // Debug GPS data
+                Serial.printf("[GPS] Valid fix: Lat=%.6f, Lon=%.6f, Age=%lu ms\n", 
+                             currentData.latitude, currentData.longitude, currentData.age);
+            } else {
+                Serial.printf("[GPS] Invalid location data, age=%lu ms\n", gps.location.age());
+            }
+            
+            if (gps.altitude.isValid()) {
+                currentData.altitude = gps.altitude.meters();
+                Serial.printf("[GPS] Altitude: %.2f m\n", currentData.altitude);
+            }
+            
+            if (gps.speed.isValid()) {
+                currentData.speed = gps.speed.kmph();
+                Serial.printf("[GPS] Speed: %.2f km/h\n", currentData.speed);
+            }
+            
+            if (gps.course.isValid()) {
+                currentData.course = gps.course.deg();
+                Serial.printf("[GPS] Course: %.2f degrees\n", currentData.course);
+            }
+            
+            if (gps.satellites.isValid()) {
+                currentData.satellites = gps.satellites.value();
+                Serial.printf("[GPS] Satellites: %d\n", currentData.satellites);
+            }
+            
+            if (gps.hdop.isValid()) {
+                currentData.hdop = gps.hdop.hdop();
+                Serial.printf("[GPS] HDOP: %.2f\n", currentData.hdop);
+            }
         }
     }
     
-    // Update statistics
-    totalSentences = gps.sentencesWithFix() + gps.failedChecksum();
-    failedChecksums = gps.failedChecksum();
-    passedChecksums = gps.passedChecksum();
+    // Check for timeout
+    if (millis() - lastValidFix > GPS_TIMEOUT_MS && currentData.isValid) {
+        currentData.isValid = false;
+        Serial.println("[GPS] [WARN] GPS fix timeout");
+    }
     
-    // Periodic status updates
+    // Print GPS status periodically
     static unsigned long lastStatusPrint = 0;
-    if (millis() - lastStatusPrint > 30000) { // Every 30 seconds
-        printStatus();
+    if (millis() - lastStatusPrint > 10000) { // Every 10 seconds
+        Serial.printf("[GPS] Status: %s, Satellites: %d, Characters: %lu, Sentences: %lu, Failed: %lu\n",
+                     currentData.isValid ? "Valid" : "Invalid",
+                     currentData.satellites,
+                     gps.charsProcessed(),
+                     gps.sentencesWithFix(),
+                     gps.failedChecksum());
         lastStatusPrint = millis();
     }
 }
@@ -112,10 +165,17 @@ void GPSHandler::updateGPSData() {
     lastUpdate = millis();
 }
 
+GPSData GPSHandler::getCurrentData() const {
+    return currentData;
+}
+
+int GPSHandler::getSatelliteCount() {
+    TinyGPSInteger &sat = const_cast<TinyGPSInteger&>(gps.satellites);
+    return sat.isValid() ? sat.value() : 0;
+}
+
 bool GPSHandler::hasValidFix() const {
-    return initialized && currentData.isValid && 
-           (currentData.satellites >= GPS_MIN_SATELLITES) &&
-           (millis() - lastValidFix < GPS_TIMEOUT_MS);
+    return currentData.isValid && (millis() - lastValidFix < GPS_TIMEOUT_MS);
 }
 
 bool GPSHandler::hasNewData() const {
@@ -277,4 +337,24 @@ double GPSHandler::distanceTo(float lat, float lon) const {
 double GPSHandler::courseTo(float lat, float lon) const {
     if (!currentData.isValid) return 0.0;
     return gps.courseTo(currentData.latitude, currentData.longitude, lat, lon);
+}
+
+// Power management functions for V1.1 hardware
+void GPSHandler::enableGPSPower() {
+    pinMode(GPS_PWR_PIN, OUTPUT);
+    digitalWrite(GPS_PWR_PIN, HIGH);
+    gpsPowered = true;
+    Serial.println(F("[GPS] GPS power enabled"));
+    delay(100); // Allow time for GPS to power up
+}
+
+void GPSHandler::disableGPSPower() {
+    digitalWrite(GPS_PWR_PIN, LOW);
+    gpsPowered = false;
+    currentData.isValid = false; // Clear current data as GPS is powered down
+    Serial.println(F("[GPS] GPS power disabled"));
+}
+
+bool GPSHandler::isGPSPowered() const {
+    return gpsPowered;
 } 

@@ -1,14 +1,53 @@
 [
     {
-        "deduplicationId": "704b422e-5c66-4f54-a218-17f048895191",
-        "time": "2025-07-14T05:16:47.858+00:00",
+        "deduplicationId": "e1e7d1e3-73bf-4c48-9e0b-cdf1016cbe99",
+        "time": "2025-07-14T20:18:39.236+00:00",
         "deviceInfo": {
             "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
             "tenantName": "structuresense",
             "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
             "applicationName": "StructureSense",
-            "deviceProfileId": "ad56e553-2931-449d-bff0-a7e2b98c710f",
-            "deviceProfileName": "StructureSenseAI - Base Profile",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "devAddr": "78000005",
+        "regionConfigId": "us915_1"
+    },
+    {
+        "time": "2025-07-14T20:18:22.535567777+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "level": "ERROR",
+        "code": "OTAA",
+        "description": "DevNonce has already been used",
+        "context": {
+            "deduplication_id": "45017f5a-de76-43ad-9619-8c5dcf344883"
+        }
+    },
+    {
+        "deduplicationId": "8c1c91b0-d9db-479e-a083-7b1cca96e21b",
+        "time": "2025-07-14T20:17:45.443+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
             "deviceName": "Gateway Sniffer",
             "devEui": "451cd5860faea7db",
             "deviceClassEnabled": "CLASS_A",
@@ -18,41 +57,146 @@
         "regionConfigId": "us915_1"
     },
     {
-        "deduplicationId": "d36f4ff9-5f82-4d40-9b0c-4e342b7ed826",
-        "time": "2025-07-14T05:16:14.720+00:00",
+        "time": "2025-07-14T20:17:28.955995796+00:00",
         "deviceInfo": {
             "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
             "tenantName": "structuresense",
             "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
             "applicationName": "StructureSense",
-            "deviceProfileId": "ad56e553-2931-449d-bff0-a7e2b98c710f",
-            "deviceProfileName": "StructureSenseAI - Base Profile",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
             "deviceName": "Gateway Sniffer",
             "devEui": "451cd5860faea7db",
             "deviceClassEnabled": "CLASS_A",
             "tags": {}
         },
-        "devAddr": "78000003",
+        "level": "ERROR",
+        "code": "OTAA",
+        "description": "DevNonce has already been used",
+        "context": {
+            "deduplication_id": "c6f82a8c-2918-4704-8a6b-82120670f3d7"
+        }
+    },
+    {
+        "time": "2025-07-14T20:17:19.094855508+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "level": "ERROR",
+        "code": "OTAA",
+        "description": "DevNonce has already been used",
+        "context": {
+            "deduplication_id": "0fa852fb-e756-402d-9a65-dae29ab1584f"
+        }
+    },
+    {
+        "deduplicationId": "55096213-c124-48db-a7f4-ec4d8a428909",
+        "time": "2025-07-14T20:10:33.906+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "devAddr": "78000005",
+        "regionConfigId": "us915_1"
+    },
+    {
+        "time": "2025-07-14T20:10:24.304187153+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "level": "ERROR",
+        "code": "OTAA",
+        "description": "DevNonce has already been used",
+        "context": {
+            "deduplication_id": "187423a2-808c-418d-9de5-2fc010cdd119"
+        }
+    },
+    {
+        "time": "2025-07-14T20:07:57.209577617+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "level": "ERROR",
+        "code": "UPLINK_CODEC",
+        "description": "JS error: Error: console is not defined\n    at <eval> (eval_script:60:1)\n",
+        "context": {
+            "deduplication_id": "a5eda29a-e76f-4ffe-bd1d-e8b8fcf4c8f1"
+        }
+    },
+    {
+        "deduplicationId": "a5eda29a-e76f-4ffe-bd1d-e8b8fcf4c8f1",
+        "time": "2025-07-14T20:07:56.893+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "devAddr": "78000001",
         "adr": true,
         "dr": 4,
         "fCnt": 0,
-        "fPort": 1,
-        "confirmed": false,
-        "data": "R2F0ZXdheSBTbmlmZmVyIE9ubGluZSE=",
+        "fPort": 47,
+        "confirmed": true,
+        "data": "eyJ1IjoxOSwibSI6MzU3LCJyIjotOTAsInMiOi00LCJiIjo0LjgsInAiOjEwMH0=",
         "rxInfo": [
             {
-                "gatewayId": "34913d8d6343fa90",
-                "uplinkId": 17743,
-                "gwTime": "2025-07-14T05:16:14.720+00:00",
-                "nsTime": "2025-07-14T05:16:14.863675724+00:00",
-                "rssi": -72,
-                "snr": 10.5,
-                "context": "LqKfaQ==",
+                "gatewayId": "45cefc9cbf4689c8",
+                "uplinkId": 11326,
+                "gwTime": "2025-07-14T20:07:56.893+00:00",
+                "nsTime": "2025-07-14T20:07:56.997964065+00:00",
+                "rssi": -109,
+                "snr": -6.5,
+                "context": "lla3Xw==",
                 "metadata": {
-                    "regi": "US915",
-                    "gateway_name": "nutty-mahogany-eel",
-                    "gateway_id": "14jVANJQuHMCDtNxiQjgATUJDGfChreHA6CUvYZr8dKzcN4JRLn",
-                    "network": "helium_iot"
+                    "gateway_id": "1121wtXGzuzk1Z4HMjE1Rp7adf3awoGZkerZuEbiyBu7SK3iSoSz",
+                    "gateway_lat": "30.226027095167474",
+                    "gateway_h3index": "8c489e3752e8bff",
+                    "gateway_long": "-97.759398768744021",
+                    "network": "helium_iot",
+                    "gateway_name": "warm-spruce-snail",
+                    "regi": "US915"
                 },
                 "crcStatus": "CRC_OK"
             }
@@ -70,162 +214,39 @@
         "regionConfigId": "us915_1"
     },
     {
-        "deduplicationId": "2126c1b6-466c-470d-a13c-3dd4fdef3229",
-        "time": "2025-07-14T05:15:58.133+00:00",
+        "deduplicationId": "2e12c87f-de3f-4b73-bcb2-bbf2dc4f671d",
+        "time": "2025-07-14T20:07:48.559+00:00",
         "deviceInfo": {
             "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
             "tenantName": "structuresense",
             "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
             "applicationName": "StructureSense",
-            "deviceProfileId": "ad56e553-2931-449d-bff0-a7e2b98c710f",
-            "deviceProfileName": "StructureSenseAI - Base Profile",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
             "deviceName": "Gateway Sniffer",
             "devEui": "451cd5860faea7db",
             "deviceClassEnabled": "CLASS_A",
             "tags": {}
         },
-        "devAddr": "78000003",
+        "devAddr": "78000001",
         "regionConfigId": "us915_1"
     },
     {
-        "time": "2025-07-14T05:15:48.949791590+00:00",
+        "deduplicationId": "bbf1b3ca-16eb-42cf-8de2-8a6711805edc",
+        "time": "2025-07-14T20:05:20.652+00:00",
         "deviceInfo": {
             "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
             "tenantName": "structuresense",
             "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
             "applicationName": "StructureSense",
-            "deviceProfileId": "ad56e553-2931-449d-bff0-a7e2b98c710f",
-            "deviceProfileName": "StructureSenseAI - Base Profile",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
             "deviceName": "Gateway Sniffer",
             "devEui": "451cd5860faea7db",
             "deviceClassEnabled": "CLASS_A",
             "tags": {}
         },
-        "level": "ERROR",
-        "code": "OTAA",
-        "description": "DevNonce has already been used",
-        "context": {
-            "deduplication_id": "30d28694-49e1-46bf-88f6-22289017a618"
-        }
-    },
-    {
-        "time": "2025-07-14T05:15:31.557237835+00:00",
-        "deviceInfo": {
-            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
-            "tenantName": "structuresense",
-            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
-            "applicationName": "StructureSense",
-            "deviceProfileId": "ad56e553-2931-449d-bff0-a7e2b98c710f",
-            "deviceProfileName": "StructureSenseAI - Base Profile",
-            "deviceName": "Gateway Sniffer",
-            "devEui": "451cd5860faea7db",
-            "deviceClassEnabled": "CLASS_A",
-            "tags": {}
-        },
-        "level": "ERROR",
-        "code": "OTAA",
-        "description": "DevNonce has already been used",
-        "context": {
-            "deduplication_id": "4cca93b8-2984-49ec-8ea8-1c1805382d79"
-        }
-    },
-    {
-        "time": "2025-07-14T05:15:21.708613641+00:00",
-        "deviceInfo": {
-            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
-            "tenantName": "structuresense",
-            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
-            "applicationName": "StructureSense",
-            "deviceProfileId": "ad56e553-2931-449d-bff0-a7e2b98c710f",
-            "deviceProfileName": "StructureSenseAI - Base Profile",
-            "deviceName": "Gateway Sniffer",
-            "devEui": "451cd5860faea7db",
-            "deviceClassEnabled": "CLASS_A",
-            "tags": {}
-        },
-        "level": "ERROR",
-        "code": "OTAA",
-        "description": "DevNonce has already been used",
-        "context": {
-            "deduplication_id": "adcc2dc8-903f-4493-b14d-f219607ee7b9"
-        }
-    },
-    {
-        "deduplicationId": "aca07b1a-c742-4880-9f9a-a97201538fe0",
-        "time": "2025-07-14T05:14:54.246+00:00",
-        "deviceInfo": {
-            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
-            "tenantName": "structuresense",
-            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
-            "applicationName": "StructureSense",
-            "deviceProfileId": "ad56e553-2931-449d-bff0-a7e2b98c710f",
-            "deviceProfileName": "StructureSenseAI - Base Profile",
-            "deviceName": "Gateway Sniffer",
-            "devEui": "451cd5860faea7db",
-            "deviceClassEnabled": "CLASS_A",
-            "tags": {}
-        },
-        "devAddr": "78000002",
+        "devAddr": "78000005",
         "regionConfigId": "us915_1"
-    },
-    {
-        "time": "2025-07-14T05:14:44.786152867+00:00",
-        "deviceInfo": {
-            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
-            "tenantName": "structuresense",
-            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
-            "applicationName": "StructureSense",
-            "deviceProfileId": "ad56e553-2931-449d-bff0-a7e2b98c710f",
-            "deviceProfileName": "StructureSenseAI - Base Profile",
-            "deviceName": "Gateway Sniffer",
-            "devEui": "451cd5860faea7db",
-            "deviceClassEnabled": "CLASS_A",
-            "tags": {}
-        },
-        "level": "ERROR",
-        "code": "OTAA",
-        "description": "DevNonce has already been used",
-        "context": {
-            "deduplication_id": "23746898-79f1-4ac0-8fd3-a83903ce0495"
-        }
-    },
-    {
-        "deduplicationId": "035a799a-1788-492b-afdc-65dac470d420",
-        "time": "2025-07-14T05:11:50.664+00:00",
-        "deviceInfo": {
-            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
-            "tenantName": "structuresense",
-            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
-            "applicationName": "StructureSense",
-            "deviceProfileId": "ad56e553-2931-449d-bff0-a7e2b98c710f",
-            "deviceProfileName": "StructureSenseAI - Base Profile",
-            "deviceName": "Gateway Sniffer",
-            "devEui": "451cd5860faea7db",
-            "deviceClassEnabled": "CLASS_A",
-            "tags": {}
-        },
-        "devAddr": "78000002",
-        "regionConfigId": "us915_1"
-    },
-    {
-        "time": "2025-07-14T05:06:44.168867446+00:00",
-        "deviceInfo": {
-            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
-            "tenantName": "structuresense",
-            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
-            "applicationName": "StructureSense",
-            "deviceProfileId": "ad56e553-2931-449d-bff0-a7e2b98c710f",
-            "deviceProfileName": "StructureSenseAI - Base Profile",
-            "deviceName": "Gateway Sniffer",
-            "devEui": "451cd5860faea7db",
-            "deviceClassEnabled": "CLASS_A",
-            "tags": {}
-        },
-        "level": "ERROR",
-        "code": "OTAA",
-        "description": "DevNonce has already been used",
-        "context": {
-            "deduplication_id": "b1744ac2-5c3a-4f54-b381-fd7d49ed5cd8"
-        }
     }
 ]

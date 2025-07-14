@@ -8,6 +8,7 @@
 // Pin definitions for GPS (Heltec Wireless Tracker V1.1)
 #define GPS_TX_PIN      33
 #define GPS_RX_PIN      34
+#define GPS_PWR_PIN     3       // V1.1 power control pin - must be HIGH to enable GPS
 #define GPS_BAUD_RATE   9600
 
 // GPS configuration constants
@@ -39,6 +40,7 @@ private:
     unsigned long lastUpdate;
     unsigned long lastValidFix;
     bool initialized;
+    bool gpsPowered;
     
     // Statistics
     unsigned long totalSentences;
@@ -60,7 +62,8 @@ public:
     void update();
     bool hasValidFix() const;
     bool hasNewData() const;
-    GPSData getCurrentData() const { return currentData; }
+    GPSData getCurrentData() const;
+    int getSatelliteCount();
     
     // Individual data getters
     float getLatitude() const { return currentData.latitude; }
@@ -76,6 +79,11 @@ public:
     bool isInitialized() const { return initialized; }
     unsigned long getTimeSinceLastFix() const;
     String getStatusString() const;
+    
+    // Power management (V1.1 hardware)
+    void enableGPSPower();
+    void disableGPSPower();
+    bool isGPSPowered() const;
     
     // Statistics
     unsigned long getTotalSentences() const { return totalSentences; }

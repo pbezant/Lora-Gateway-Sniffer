@@ -1,0 +1,64 @@
+{
+    "deduplicationId": "364e9c5b-55aa-4fe4-b3ff-3b53d81dfee6",
+    "time": "2025-07-14T19:38:37.686+00:00",
+    "deviceInfo": {
+        "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+        "tenantName": "structuresense",
+        "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+        "applicationName": "StructureSense",
+        "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+        "deviceProfileName": "Gateway Sniffer",
+        "deviceName": "Gateway Sniffer",
+        "devEui": "451cd5860faea7db",
+        "deviceClassEnabled": "CLASS_A",
+        "tags": {}
+    },
+    "devAddr": "78000001",
+    "adr": true,
+    "dr": 0,
+    "fCnt": 0,
+    "fPort": 1,
+    "confirmed": false,
+    "data": "T25saW5lIQ==",
+    "object": {
+        "port": 1,
+        "message": "Online!",
+        "raw_bytes": 7,
+        "status": "device_online",
+        "raw_string": "Online!",
+        "message_type": "join_test",
+        "data_type": "join_confirmation"
+    },
+    "rxInfo": [
+        {
+            "gatewayId": "45cefc9cbf4689c8",
+            "uplinkId": 5551,
+            "gwTime": "2025-07-14T19:38:37.686+00:00",
+            "nsTime": "2025-07-14T19:38:37.819456477+00:00",
+            "rssi": -107,
+            "snr": 1.5,
+            "context": "LXtElg==",
+            "metadata": {
+                "regi": "US915",
+                "gateway_lat": "30.226027095167474",
+                "network": "helium_iot",
+                "gateway_name": "warm-spruce-snail",
+                "gateway_h3index": "8c489e3752e8bff",
+                "gateway_id": "1121wtXGzuzk1Z4HMjE1Rp7adf3awoGZkerZuEbiyBu7SK3iSoSz",
+                "gateway_long": "-97.759398768744021"
+            },
+            "crcStatus": "CRC_OK"
+        }
+    ],
+    "txInfo": {
+        "frequency": 903900000,
+        "modulation": {
+            "lora": {
+                "bandwidth": 125000,
+                "spreadingFactor": 10,
+                "codeRate": "CR_4_5"
+            }
+        }
+    },
+    "regionConfigId": "us915_1"
+}

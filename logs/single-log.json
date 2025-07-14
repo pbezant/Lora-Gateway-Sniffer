@@ -1,0 +1,21 @@
+{
+    "time": "2025-07-14T14:10:18.796257074+00:00",
+    "deviceInfo": {
+        "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+        "tenantName": "structuresense",
+        "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+        "applicationName": "StructureSense",
+        "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+        "deviceProfileName": "Gateway Sniffer",
+        "deviceName": "Gateway Sniffer",
+        "devEui": "451cd5860faea7db",
+        "deviceClassEnabled": "CLASS_A",
+        "tags": {}
+    },
+    "level": "ERROR",
+    "code": "UPLINK_CODEC",
+    "description": "decodeUplink returned errors: JSON parsing failed: unexpected token: 'Online'",
+    "context": {
+        "deduplication_id": "7d9c4ba8-7369-4610-a703-a8928cd32a64"
+    }
+}

@@ -76,7 +76,7 @@ public:
     void updateStatus(const String& status);
     void updateGPSInfo(bool hasfix, int satellites, float latitude, float longitude);
     void updateLoRaInfo(bool joined, int rssi, float snr, const String& status);
-    void updateSystemInfo(unsigned long uptime, size_t freeHeap, float temperature = 0.0);
+    void updateSystemInfo(unsigned long uptime, size_t freeHeap, float temperature = 0.0, float batteryVoltage = 0.0, float batteryPercentage = 0.0);
     
     // Direct display methods
     void showMessage(const String& message, int duration = 2000);
@@ -116,11 +116,13 @@ private:
         unsigned long systemUptime;
         size_t systemFreeHeap;
         float systemTemperature;
+        float batteryVoltage;
+        float batteryPercentage;
         
         DisplayData() : deviceStatus("Starting..."), gpsHasFix(false), gpsSatellites(0),
                        gpsLatitude(0.0), gpsLongitude(0.0), gpsStatus("No fix"),
                        loraJoined(false), loraRssi(0), loraSnr(0.0), loraStatus("Not connected"),
-                       systemUptime(0), systemFreeHeap(0), systemTemperature(0.0) {}
+                       systemUptime(0), systemFreeHeap(0), systemTemperature(0.0), batteryVoltage(0.0), batteryPercentage(0.0) {}
     } displayData;
 };
 

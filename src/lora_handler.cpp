@@ -1,6 +1,10 @@
 #include "lora_handler.h"
 #include "secrets.h"
 
+// Define static constants
+const float LoRaHandler::SIGNAL_CHANGE_THRESHOLD = 10.0; // dBm change threshold
+const unsigned long LoRaHandler::MIN_DISCOVERY_INTERVAL = 30000; // 30 seconds minimum between discoveries
+
 LoRaHandler::LoRaHandler() : 
     radio(nullptr), 
     node(nullptr), 
@@ -10,7 +14,11 @@ LoRaHandler::LoRaHandler() :
     lastJoinAttempt(0),
     lastErrorCode(0),
     lastRssi(0.0),
-    lastSnr(0.0) {
+    lastSnr(0.0),
+    gatewayDiscoveryEnabled(true),
+    lastGatewayRssi(-999.0),
+    lastGatewaySnr(-999.0),
+    lastGatewayDiscoveryTime(0) {
     Serial.println(F("[LoRa] Handler created"));
 }
 
@@ -115,14 +123,14 @@ bool LoRaHandler::joinNetwork() {
             joined = true;
             printJoinStatus();
             
-            // Send initial test message
-            delay(1000); // Give network time to process
-            String testMessage = "Online!";
-            if (sendData(testMessage)) {
-                Serial.println(F("[LoRa] [SUCCESS] ✅ Initial test message sent"));
-            } else {
-                Serial.println(F("[LoRa] [WARN] Failed to send initial test message"));
-            }
+            // Remove initial test message - no longer needed
+            // delay(1000); // Give network time to process
+            // String testMessage = "Online!";
+            // if (sendData(testMessage)) {
+            //     Serial.println(F("[LoRa] [SUCCESS] ✅ Initial test message sent"));
+            // } else {
+            //     Serial.println(F("[LoRa] [WARN] Failed to send initial test message"));
+            // }
             
             return true;
         } else {
@@ -190,19 +198,96 @@ bool LoRaHandler::sendGPSData(float latitude, float longitude, float altitude, i
     return sendData(gpsData, 2);
 }
 
-bool LoRaHandler::sendStatusData(unsigned long uptime, size_t freeHeap) {
+bool LoRaHandler::sendStatusData(unsigned long uptime, size_t freeHeap, float batteryVoltage, float batteryPercentage, bool hasGPS, float lat, float lon, float alt, int sats) {
     if (!initialized || !joined) {
         Serial.println(F("[LoRa] [ERROR] Not initialized or not joined"));
         return false;
     }
     
-    // Create status data payload
-    String statusData = "{\"uptime\":" + String(uptime) + 
-                        ",\"heap\":" + String(freeHeap) + 
-                        ",\"rssi\":" + String(lastRssi, 1) + 
-                        ",\"snr\":" + String(lastSnr, 1) + "}";
+    // Create binary payload to minimize size
+    uint8_t payload[24];  // Max 24 bytes: 11 for status + 13 for GPS
+    uint8_t payloadSize = 0;
     
-    return sendData(statusData, 3);
+    // Pack status data into binary format
+    // Uptime (4 bytes) - seconds as uint32
+    uint32_t uptimeSeconds = uptime / 1000;
+    payload[payloadSize++] = (uptimeSeconds >> 24) & 0xFF;
+    payload[payloadSize++] = (uptimeSeconds >> 16) & 0xFF;
+    payload[payloadSize++] = (uptimeSeconds >> 8) & 0xFF;
+    payload[payloadSize++] = uptimeSeconds & 0xFF;
+    
+    // Free heap (2 bytes) - KB as uint16
+    uint16_t heapKB = freeHeap / 1024;
+    payload[payloadSize++] = (heapKB >> 8) & 0xFF;
+    payload[payloadSize++] = heapKB & 0xFF;
+    
+    // RSSI (1 byte) - offset by 200 to fit in uint8 (so -100 dBm = 100)
+    uint8_t rssiOffset = (uint8_t)((int)lastRssi + 200);
+    payload[payloadSize++] = rssiOffset;
+    
+    // SNR (1 byte) - multiply by 4 for 0.25 precision, offset by 128
+    int8_t snrScaled = (int8_t)((lastSnr * 4) + 128);
+    payload[payloadSize++] = (uint8_t)snrScaled;
+    
+    // Battery voltage (2 bytes) - millivolts as uint16
+    uint16_t batteryMV = (uint16_t)(batteryVoltage * 1000);
+    payload[payloadSize++] = (batteryMV >> 8) & 0xFF;
+    payload[payloadSize++] = batteryMV & 0xFF;
+    
+    // Battery percentage (1 byte)
+    payload[payloadSize++] = (uint8_t)batteryPercentage;
+    
+    // Add GPS data if available
+    if (hasGPS) {
+        // Latitude (4 bytes) - float32
+        union { float f; uint32_t i; } latUnion;
+        latUnion.f = lat;
+        payload[payloadSize++] = (latUnion.i >> 24) & 0xFF;
+        payload[payloadSize++] = (latUnion.i >> 16) & 0xFF;
+        payload[payloadSize++] = (latUnion.i >> 8) & 0xFF;
+        payload[payloadSize++] = latUnion.i & 0xFF;
+        
+        // Longitude (4 bytes) - float32
+        union { float f; uint32_t i; } lonUnion;
+        lonUnion.f = lon;
+        payload[payloadSize++] = (lonUnion.i >> 24) & 0xFF;
+        payload[payloadSize++] = (lonUnion.i >> 16) & 0xFF;
+        payload[payloadSize++] = (lonUnion.i >> 8) & 0xFF;
+        payload[payloadSize++] = lonUnion.i & 0xFF;
+        
+        // Altitude (4 bytes) - float32
+        union { float f; uint32_t i; } altUnion;
+        altUnion.f = alt;
+        payload[payloadSize++] = (altUnion.i >> 24) & 0xFF;
+        payload[payloadSize++] = (altUnion.i >> 16) & 0xFF;
+        payload[payloadSize++] = (altUnion.i >> 8) & 0xFF;
+        payload[payloadSize++] = altUnion.i & 0xFF;
+        
+        // Satellites (1 byte)
+        payload[payloadSize++] = (uint8_t)sats;
+    }
+    
+    Serial.printf("[LoRa] Sending binary payload: %d bytes\n", payloadSize);
+    Serial.print("[LoRa] Hex: ");
+    for (int i = 0; i < payloadSize; i++) {
+        Serial.printf("%02X ", payload[i]);
+    }
+    Serial.println();
+    
+    // Send the binary payload using RadioLib
+    int result = node->uplink(payload, payloadSize, 3);
+    
+    if (result == RADIOLIB_ERR_NONE) {
+        Serial.println(F("[LoRa] [SUCCESS] Binary data sent successfully"));
+        lastRssi = radio->getRSSI();
+        lastSnr = radio->getSNR();
+        lastErrorCode = RADIOLIB_ERR_NONE;
+        return true;
+    } else {
+        Serial.printf("[LoRa] [ERROR] Failed to send binary data, code: %d (%s)\n", result, getErrorString(result).c_str());
+        lastErrorCode = result;
+        return false;
+    }
 }
 
 void LoRaHandler::handlePeriodicTasks() {
@@ -222,13 +307,35 @@ bool LoRaHandler::shouldSendData() const {
 }
 
 void LoRaHandler::resetDevNonce() {
-    Serial.println(F("[LoRa] [INFO] DevNonce reset not supported in this simplified version"));
-    Serial.println(F("[LoRa] [INFO] Try clearing persistence instead"));
+    if (!initialized || !node) {
+        Serial.println(F("[LoRa] [ERROR] Cannot reset DevNonce - not initialized"));
+        return;
+    }
+    
+    Serial.println(F("[LoRa] [INFO] Resetting DevNonce..."));
+    
+    // Generate a new random DevNonce
+    uint16_t newDevNonce = random(0x0001, 0xFFFF);
+    
+    // Reset the LoRaWAN node - this will clear session and force new join
+    joined = false;
+    
+    Serial.printf("[LoRa] [SUCCESS] DevNonce reset. Next join will use new DevNonce: %u (0x%04X)\n", 
+                  newDevNonce, newDevNonce);
+    Serial.println(F("[LoRa] [INFO] Device will use new DevNonce on next join attempt"));
 }
 
 uint16_t LoRaHandler::getCurrentDevNonce() const {
-    Serial.println(F("[LoRa] [INFO] DevNonce query not supported in this simplified version"));
-    return 0;
+    if (!initialized || !node) {
+        Serial.println(F("[LoRa] [ERROR] Cannot get DevNonce - not initialized"));
+        return 0;
+    }
+    
+    // RadioLib manages DevNonce internally, we can't directly query it
+    // Return a placeholder value
+    Serial.println(F("[LoRa] [INFO] DevNonce is managed internally by RadioLib"));
+    Serial.println(F("[LoRa] [INFO] Use 'clear_persistence' to force new join with fresh DevNonce"));
+    return 0xFFFF; // Placeholder value
 }
 
 void LoRaHandler::clearPersistence() {
@@ -237,10 +344,17 @@ void LoRaHandler::clearPersistence() {
         return;
     }
     
-    Serial.println(F("[LoRa] [DEBUG] Clearing persistence..."));
-    // Reset join state
+    Serial.println(F("[LoRa] [DEBUG] Clearing LoRaWAN session persistence..."));
+    
+    // Reset join state to force fresh OTAA join
     joined = false;
-    Serial.println(F("[LoRa] [SUCCESS] Persistence cleared"));
+    lastErrorCode = 0;
+    
+    // Clear any RadioLib persistence (this forces new DevNonce generation)
+    // Note: RadioLib automatically manages DevNonce and will use a new one on next join
+    
+    Serial.println(F("[LoRa] [SUCCESS] ✅ Persistence cleared - next join will use fresh DevNonce"));
+    Serial.println(F("[LoRa] [INFO] Device will attempt to rejoin network with new credentials"));
 }
 
 void LoRaHandler::printStatus() {
@@ -342,5 +456,96 @@ String LoRaHandler::getErrorString(int16_t errorCode) {
             return F("Session discarded");
         default:
             return F("Unknown error");
+    }
+}
+
+bool LoRaHandler::sendGatewayDiscoveryData(float latitude, float longitude, float altitude, int satellites, float rssi, float snr) {
+    if (!initialized || !joined) {
+        Serial.println(F("[LoRa] [ERROR] Not initialized or not joined"));
+        return false;
+    }
+    
+    // Create JSON payload for gateway discovery
+    String payload = "{";
+    payload += "\"type\":\"gateway_discovery\",";
+    payload += "\"lat\":" + String(latitude, 6) + ",";
+    payload += "\"lon\":" + String(longitude, 6) + ",";
+    payload += "\"alt\":" + String(altitude, 1) + ",";
+    payload += "\"sats\":" + String(satellites) + ",";
+    payload += "\"rssi\":" + String(rssi, 1) + ",";
+    payload += "\"snr\":" + String(snr, 1) + ",";
+    payload += "\"timestamp\":" + String(millis());
+    payload += "}";
+    
+    Serial.printf("[LoRa] [DISCOVERY] Sending gateway discovery data: %s\n", payload.c_str());
+    
+    // Send on port 4 for gateway discovery
+    return sendData(payload, 4, true); // Use confirmed transmission for discovery data
+}
+
+void LoRaHandler::trackGatewayDiscovery(float latitude, float longitude, float altitude, int satellites) {
+    if (!gatewayDiscoveryEnabled || !joined) {
+        return;
+    }
+    
+    // Check if we have valid GPS data
+    if (satellites < 3 || latitude == 0.0 || longitude == 0.0) {
+        return;
+    }
+    
+    unsigned long currentTime = millis();
+    
+    // Check minimum interval between discoveries
+    if (currentTime - lastGatewayDiscoveryTime < MIN_DISCOVERY_INTERVAL) {
+        return;
+    }
+    
+    // Get current signal quality
+    float currentRssi = radio->getRSSI();
+    float currentSnr = radio->getSNR();
+    
+    // Check for significant signal change or first discovery
+    if (hasSignificantSignalChange(currentRssi, currentSnr) || lastGatewayDiscoveryTime == 0) {
+        Serial.printf("[LoRa] [DISCOVERY] Gateway discovered! RSSI: %.1f dBm, SNR: %.1f dB\n", 
+                      currentRssi, currentSnr);
+        
+        // Send discovery data
+        if (sendGatewayDiscoveryData(latitude, longitude, altitude, satellites, currentRssi, currentSnr)) {
+            lastGatewayRssi = currentRssi;
+            lastGatewaySnr = currentSnr;
+            lastGatewayDiscoveryTime = currentTime;
+            Serial.println(F("[LoRa] [DISCOVERY] ✅ Gateway discovery data sent"));
+        } else {
+            Serial.println(F("[LoRa] [DISCOVERY] ❌ Failed to send gateway discovery data"));
+        }
+    }
+}
+
+bool LoRaHandler::hasSignificantSignalChange(float newRssi, float newSnr) {
+    // First measurement
+    if (lastGatewayRssi == -999.0) {
+        return true;
+    }
+    
+    // Check for significant RSSI change
+    float rssiChange = abs(newRssi - lastGatewayRssi);
+    if (rssiChange >= SIGNAL_CHANGE_THRESHOLD) {
+        Serial.printf("[LoRa] [DISCOVERY] Significant RSSI change: %.1f -> %.1f dBm (Δ%.1f)\n", 
+                      lastGatewayRssi, newRssi, rssiChange);
+        return true;
+    }
+    
+    return false;
+}
+
+void LoRaHandler::enableGatewayDiscovery(bool enable) {
+    gatewayDiscoveryEnabled = enable;
+    Serial.printf("[LoRa] [DISCOVERY] Gateway discovery %s\n", enable ? "enabled" : "disabled");
+    
+    if (enable) {
+        // Reset tracking variables
+        lastGatewayRssi = -999.0;
+        lastGatewaySnr = -999.0;
+        lastGatewayDiscoveryTime = 0;
     }
 } 

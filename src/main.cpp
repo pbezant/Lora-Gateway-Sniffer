@@ -24,6 +24,9 @@ unsigned long lastDisplayUpdate = 0;
 unsigned long lastLoRaSend = 0;
 unsigned long bootTime = 0;
 
+// Constants
+const unsigned long PERIODIC_INTERVAL = 120; // Send data every 2 minutes (120 seconds) - respects LoRaWAN duty cycle
+
 // Function prototypes
 void initializeSystem();
 void initializeDisplay();
@@ -34,6 +37,31 @@ void handleError(const String& error);
 void updateSystemStatus();
 void sendPeriodicData();
 void printSystemInfo();
+void onJoinAccept();
+
+// Helper function to read battery voltage from GPIO 15
+float readBatteryVoltage() {
+    // GPIO 15 is the confirmed battery voltage pin for Heltec Wireless Tracker v1.1
+    const int BATTERY_PIN = 15;
+    
+    uint32_t reading = analogReadMilliVolts(BATTERY_PIN);
+    float voltage = (2.0f * reading) / 1000.0f; // Assume 2:1 voltage divider
+    
+    Serial.printf("[MAIN] Battery voltage on GPIO %d: %.3f V\n", BATTERY_PIN, voltage);
+    return voltage;
+}
+
+// Helper function to convert battery voltage to percentage
+float batteryVoltageToPercentage(float voltage) {
+    // LiPo battery voltage ranges (adjust these based on your battery)
+    const float BATTERY_MIN = 3.0f; // Empty battery voltage
+    const float BATTERY_MAX = 4.2f; // Full battery voltage
+    
+    if (voltage >= BATTERY_MAX) return 100.0f;
+    if (voltage <= BATTERY_MIN) return 0.0f;
+    
+    return ((voltage - BATTERY_MIN) / (BATTERY_MAX - BATTERY_MIN)) * 100.0f;
+}
 
 void setup() {
     Serial.begin(115200);
@@ -181,13 +209,21 @@ void handleMainLoop() {
         } else if (command == "clear_persistence" || command == "cp") {
             Serial.println(F("[MAIN] [CMD] Clearing persistence..."));
             loraHandler.clearPersistence();
+        } else if (command == "enable_discovery" || command == "ed") {
+            Serial.println(F("[MAIN] [CMD] Enabling gateway discovery..."));
+            loraHandler.enableGatewayDiscovery(true);
+        } else if (command == "disable_discovery" || command == "dd") {
+            Serial.println(F("[MAIN] [CMD] Disabling gateway discovery..."));
+            loraHandler.enableGatewayDiscovery(false);
         } else if (command == "help" || command == "h") {
             Serial.println(F("[MAIN] [CMD] Available commands:"));
-            Serial.println(F("[MAIN] [CMD] - reset_devnonce (rd): Reset DevNonce to random value"));
+            Serial.println(F("[MAIN] [CMD] - reset_devnonce (rd): Reset DevNonce and force fresh join"));
             Serial.println(F("[MAIN] [CMD] - rejoin (rj): Attempt to rejoin LoRaWAN network"));
             Serial.println(F("[MAIN] [CMD] - status (s): Show system status"));
-            Serial.println(F("[MAIN] [CMD] - devnonce (dn): Show current DevNonce"));
-            Serial.println(F("[MAIN] [CMD] - clear_persistence (cp): Clear LoRaWAN session data"));
+            Serial.println(F("[MAIN] [CMD] - devnonce (dn): Show DevNonce info"));
+            Serial.println(F("[MAIN] [CMD] - clear_persistence (cp): Clear session data (RECOMMENDED for -1108 errors)"));
+            Serial.println(F("[MAIN] [CMD] - enable_discovery (ed): Enable automatic gateway discovery"));
+            Serial.println(F("[MAIN] [CMD] - disable_discovery (dd): Disable automatic gateway discovery"));
             Serial.println(F("[MAIN] [CMD] - help (h): Show this help"));
         } else if (command.length() > 0) {
             Serial.printf("[MAIN] [CMD] Unknown command: %s (type 'help' for available commands)\n", command.c_str());
@@ -197,8 +233,8 @@ void handleMainLoop() {
     // Update GPS data
     gpsHandler.update();
 
-    // Update display
-    if (millis() - lastDisplayUpdate > 1000) {
+    // Update display periodically
+    if (millis() - lastDisplayUpdate > DISPLAY_UPDATE_INTERVAL) {
         updateSystemStatus();
         displayHandler.update();
         lastDisplayUpdate = millis();
@@ -208,7 +244,7 @@ void handleMainLoop() {
     loraHandler.handlePeriodicTasks();
 
     // Send periodic data if LoRa is connected
-    if (loraHandler.isJoined() && (millis() - lastLoRaSend > 60000)) {
+    if (loraHandler.isJoined() && (millis() - lastLoRaSend > PERIODIC_INTERVAL)) {
         sendPeriodicData();
         lastLoRaSend = millis();
     }
@@ -233,59 +269,52 @@ void updateSystemStatus() {
     // Update display with current system information
     unsigned long uptime = millis() - bootTime;
     size_t freeHeap = ESP.getFreeHeap();
+    float batteryVoltage = readBatteryVoltage();
+    float batteryPercentage = batteryVoltageToPercentage(batteryVoltage);
     
-    // Update system info
-    displayHandler.updateSystemInfo(uptime, freeHeap);
+    // Update system info (pass both voltage and percentage)
+    displayHandler.updateSystemInfo(uptime, freeHeap, 0.0, batteryVoltage, batteryPercentage);
     
-    // Update GPS info
-    GPSData gpsData = gpsHandler.getCurrentData();
-    displayHandler.updateGPSInfo(
-        gpsData.isValid,
-        gpsData.satellites,
-        gpsData.latitude,
-        gpsData.longitude
-    );
-
-    // Update LoRa info
-    displayHandler.updateLoRaInfo(
-        loraHandler.isJoined(),
-        (int)loraHandler.getLastRssi(),
-        loraHandler.getLastSnr(),
-        loraHandler.isJoined() ? "Connected" : "Disconnected"
-    );
-    
-    // Update general status
-    String status = "Running";
-    if (!gpsHandler.hasValidFix()) {
-        status = "No GPS fix";
-    } else if (!loraHandler.isJoined()) {
-        status = "No LoRa";
+    // Update GPS status
+    if (gpsHandler.hasValidFix()) {
+        GPSData gpsData = gpsHandler.getCurrentData();
+        displayHandler.updateGPSInfo(true, gpsData.satellites, gpsData.latitude, gpsData.longitude);
+    } else {
+        displayHandler.updateGPSInfo(false, gpsHandler.getSatelliteCount(), 0.0, 0.0);
     }
-    displayHandler.updateStatus(status);
+    
+    // Update LoRa status
+    displayHandler.updateLoRaInfo(loraHandler.isJoined(), loraHandler.getLastRssi(), loraHandler.getLastSnr(), loraHandler.isJoined() ? "Connected" : "Disconnected");
 }
 
 void sendPeriodicData() {
     Serial.println(F("[MAIN] Sending periodic data..."));
     
-    // Send GPS data if available
-    if (gpsHandler.hasValidFix()) {
-        GPSData gpsData = gpsHandler.getCurrentData();
-        if (loraHandler.sendGPSData(gpsData.latitude, gpsData.longitude, 
-                                   gpsData.altitude, gpsData.satellites)) {
-            Serial.println(F("[MAIN] [SUCCESS] GPS data sent"));
-            } else {
-            Serial.println(F("[MAIN] [WARN] Failed to send GPS data"));
-        }
-    }
-
-    // Send system status
-    unsigned long uptime = (millis() - bootTime) / 1000;
+    // Get current data
+    unsigned long uptime = millis() - bootTime;
     size_t freeHeap = ESP.getFreeHeap();
+    float batteryVoltage = readBatteryVoltage();
+    float batteryPercentage = batteryVoltageToPercentage(batteryVoltage);
     
-    if (loraHandler.sendStatusData(uptime, freeHeap)) {
-        Serial.println(F("[MAIN] [SUCCESS] Status data sent"));
+    // Get GPS data
+    bool hasGPS = gpsHandler.hasValidFix();
+    float lat = 0.0, lon = 0.0, alt = 0.0;
+    int sats = 0;
+    
+    if (hasGPS) {
+        GPSData gpsData = gpsHandler.getCurrentData();
+        lat = gpsData.latitude;
+        lon = gpsData.longitude;
+        alt = gpsData.altitude;
+        sats = gpsData.satellites;
+    }
+    
+    // Send combined status + GPS + battery data
+    if (loraHandler.sendStatusData(uptime, freeHeap, batteryVoltage, batteryPercentage, hasGPS, lat, lon, alt, sats)) {
+        Serial.printf("[MAIN] Combined data sent successfully (Battery: %.3f V, %.1f%%, GPS: %s)\n", 
+                     batteryVoltage, batteryPercentage, hasGPS ? "Valid" : "No fix");
     } else {
-        Serial.println(F("[MAIN] [WARN] Failed to send status data"));
+        Serial.println(F("[MAIN] Failed to send combined data"));
     }
 }
 
@@ -309,4 +338,11 @@ void printSystemInfo() {
     displayHandler.printStatus();
     
     Serial.println(F("[MAIN] === End Status Report ===\n"));
+}
+
+void onJoinAccept() {
+    Serial.println(F("[MAIN] ✅ Join accepted!"));
+    displayHandler.updateLoRaInfo(true, 0, 0.0, "Connected");
+    // Remove the "Online!" packet - just set the flag to start periodic data
+    // No initial packet sent here anymore
 }
