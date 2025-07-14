@@ -1,0 +1,78 @@
+Heltec Wireless Tracker V1.1: Screen and Pinout Details
+The Heltec Wireless Tracker V1.1 is equipped with a 0.96-inch color LCD display with a resolution of 160x80 pixels. This screen is utilized for displaying device status, debugging information, and other relevant data.
+
+The display communicates with the main ESP32-S3 microcontroller via an SPI interface. The specific pin connections for the screen are as follows:
+
+Pin Function
+
+GPIO Number
+
+SCL 3
+
+SDA 4
+
+RES 5
+
+DC 6
+
+CS 7
+
+BLK 8
+
+It's important to note that these pins are dedicated to the screen's operation and should be considered when interfacing other components with the Heltec Wireless Tracker. For further detailed information and schematics, it is recommended to consult the official Heltec documentation and datasheets for the Wireless Tracker V1.1.
+
+Yes, there are several examples available that demonstrate how to use the screen on the Heltec Wireless Tracker V1.1. These examples can be found in the official Heltec GitHub repository and through community forums.
+
+The most common approach is to use the Arduino IDE with Heltec's own libraries or popular third-party libraries like Adafruit's GFX and ST7735 libraries.
+
+### Official Heltec Examples
+
+The best place to start is the official **Heltec ESP32 Arduino library**, which includes a variety of examples for their boards.
+
+You can find these examples directly on GitHub in the [Heltec\_ESP32 repository](https://github.com/HelTecAutomation/Heltec_ESP32/tree/master/examples). Once you have the Heltec ESP32 board support package installed in your Arduino IDE, you can also access these examples directly from the "File" -\> "Examples" menu.
+
+A particularly relevant example to get started with the display would be under a path similar to `File > Examples > Heltec-ESP32 > OLED > SimpleDemo`. While the Wireless Tracker has an LCD, the basic principles of initializing the display and drawing on it are similar.
+
+### Basic Code Structure (using Heltec's Library)
+
+Here is a simplified example of what the code to initialize the display and print "Hello, World\!" might look like. This is based on the structure of examples found for Heltec devices.
+
+```cpp
+#include "heltec.h"
+
+void setup() {
+  // Start the Heltec board library
+  Heltec.begin(true /*DisplayEnable Enable*/, false /*LoRa Disable*/, true /*Serial Enable*/);
+
+  // Clear the display
+  Heltec.display->clear();
+
+  // Set the font
+  Heltec.display->setFont(ArialMT_Plain_10);
+
+  // Draw the string on the display
+  Heltec.display->drawString(0, 0, "Hello, World!");
+
+  // Write the buffer to the display
+  Heltec.display->display();
+}
+
+void loop() {
+  // Your main code here
+}
+```
+
+### Using Adafruit Libraries
+
+Many users in the community also use the popular **Adafruit ST7735 and Adafruit GFX libraries** as an alternative. These libraries are well-documented and provide a wide range of functions for drawing shapes, text, and images.
+
+When using these libraries, you will need to define the correct pins for the display in your code. As a reminder, the pinout is:
+
+  * **SCL:** 3
+  * **SDA:** 4
+  * **RES:** 5
+  * **DC:** 6
+  * **CS:** 7
+  * **BLK:** 8
+
+For further exploration, Browse through the [Heltec Community Forums](https://www.google.com/search?q=https://community.heltec.cn/) can also provide user-submitted projects and solutions for working with the Wireless Tracker's display.

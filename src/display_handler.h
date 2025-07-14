@@ -2,36 +2,62 @@
 #define DISPLAY_HANDLER_H
 
 #include <Arduino.h>
-#include <U8g2lib.h>
-#include <Wire.h>
+#include <SPI.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_ST7735.h>
 
-// Pin definitions for OLED display (Heltec Wireless Tracker v1.1)
-#define OLED_SDA    4
-#define OLED_SCL    15
-#define OLED_RST    16
+// Pin definitions for TFT LCD display (Heltec Wireless Tracker V1.1) - FROM OFFICIAL SPECS!
+#define TFT_CS      38   // Chip Select (GPIO38 = TFT_CS)
+#define TFT_RST     39   // Reset (GPIO39 = TFT_RES)
+#define TFT_DC      40   // Data/Command (GPIO40 = TFT_RS)
+#define TFT_SCLK    41   // SPI Clock (GPIO41 = TFT_SCLK)
+#define TFT_MOSI    42   // SPI Data (GPIO42 = TFT_SDIN)
+#define TFT_BLK     21   // Backlight (GPIO21 = TFT_LED_K) - CRITICAL!
 
-// Display configuration constants
-#define DISPLAY_WIDTH       128
-#define DISPLAY_HEIGHT      64
-#define DISPLAY_UPDATE_INTERVAL 1000  // Update display every 1 second
-#define DISPLAY_I2C_ADDRESS 0x3C      // Default I2C address for SSD1306
+// Display dimensions for Heltec Wireless Tracker V1.1
+#ifndef DISPLAY_WIDTH
+#define DISPLAY_WIDTH  160
+#endif
+#ifndef DISPLAY_HEIGHT
+#define DISPLAY_HEIGHT 80
+#endif
 
-// Display page enumeration
+// Display update interval
+#define DISPLAY_UPDATE_INTERVAL 1000
+
+// Display pages
 enum DisplayPage {
     PAGE_STATUS = 0,
-    PAGE_GPS,
-    PAGE_LORA,
-    PAGE_SYSTEM,
-    PAGE_COUNT  // Total number of pages
+    PAGE_GPS = 1,
+    PAGE_LORA = 2,
+    PAGE_SYSTEM = 3,
+    PAGE_COUNT = 4
 };
 
 class DisplayHandler {
 private:
-    U8G2* display;
+    Adafruit_ST7735 display;
     DisplayPage currentPage;
     unsigned long lastUpdate;
     unsigned long lastPageSwitch;
     bool initialized;
+    
+    // System state variables
+    bool gpsFixed;
+    int gpsSatellites;
+    double gpsLatitude;
+    double gpsLongitude;
+    
+    bool loraJoined;
+    int loraRssi;
+    float loraSnr;
+    String loraStatus;
+    
+    unsigned long systemUptime;
+    unsigned long systemFreeHeap;
+    float systemCpuUsage;
+    float systemBatteryVoltage;
+    int systemBatteryPercentage;
     
     // Display content methods
     void drawStatusPage();
@@ -39,91 +65,35 @@ private:
     void drawLoRaPage();
     void drawSystemPage();
     void drawMessage(const char* message);
+    void drawCenteredText(const char* text, int y);
     
-    // Helper methods
-    void drawHeader(const char* title);
-    void drawProgressBar(int x, int y, int width, int height, int percentage);
-    void drawSignalBars(int x, int y, int bars, int maxBars);
-    String formatUptime(unsigned long uptime);
-    String formatMemory(size_t bytes);
-    
-    // Hardware methods
-    void resetDisplay();
-    bool scanI2CDevice(uint8_t address);
-    
+    // Backlight control
+    void controlBacklight(bool state);
+
 public:
     DisplayHandler();
     ~DisplayHandler();
     
-    // Initialization
     bool initialize();
-    
-    // Display control
     void update();
-    void clear();
-    void turnOn();
-    void turnOff();
-    void setBrightness(uint8_t brightness);
-    void setContrast(uint8_t contrast);
-    
-    // Page management
     void nextPage();
-    void previousPage();
-    void setPage(DisplayPage page);
-    DisplayPage getCurrentPage() const { return currentPage; }
+    void showMessage(const char* message);
+    void showMessage(const String& message);
+    void showSuccess(const char* message);
+    void showError(const char* message);
+    void showError(const String& message);
     
-    // Content update methods
-    void updateStatus(const String& status);
-    void updateGPSInfo(bool hasfix, int satellites, float latitude, float longitude);
+    // System info update methods
+    void updateGPSInfo(bool fixed, int satellites, double lat, double lon);
     void updateLoRaInfo(bool joined, int rssi, float snr, const String& status);
-    void updateSystemInfo(unsigned long uptime, size_t freeHeap, float temperature = 0.0, float batteryVoltage = 0.0, float batteryPercentage = 0.0);
+    void updateSystemInfo(unsigned long uptime, unsigned long freeHeap, float cpuUsage, 
+                         float batteryVoltage, int batteryPercentage);
     
-    // Direct display methods
-    void showMessage(const String& message, int duration = 2000);
-    void showError(const String& error, int duration = 3000);
-    void showSuccess(const String& message, int duration = 2000);
-    void showProgress(const String& message, int percentage);
-    
-    // Status and diagnostics
-    bool isInitialized() const { return initialized; }
+    // Status method for main.cpp compatibility
     void printStatus();
     
-    // Utility methods
-    void drawCenteredText(const char* text, int y);
-    void drawRightAlignedText(const char* text, int y);
-    int getTextWidth(const char* text);
-    
-private:
-    // Cached display data
-    struct DisplayData {
-        // Status data
-        String deviceStatus;
-        
-        // GPS data
-        bool gpsHasFix;
-        int gpsSatellites;
-        float gpsLatitude;
-        float gpsLongitude;
-        String gpsStatus;
-        
-        // LoRa data
-        bool loraJoined;
-        int loraRssi;
-        float loraSnr;
-        String loraStatus;
-        
-        // System data
-        unsigned long systemUptime;
-        size_t systemFreeHeap;
-        float systemTemperature;
-        float batteryVoltage;
-        float batteryPercentage;
-        
-        DisplayData() : deviceStatus("Starting..."), gpsHasFix(false), gpsSatellites(0),
-                       gpsLatitude(0.0), gpsLongitude(0.0), gpsStatus("No fix"),
-                       loraJoined(false), loraRssi(0), loraSnr(0.0), loraStatus("Not connected"),
-                       systemUptime(0), systemFreeHeap(0), systemTemperature(0.0), batteryVoltage(0.0), batteryPercentage(0.0) {}
-    } displayData;
+    bool isInitialized() const { return initialized; }
+    DisplayPage getCurrentPage() const { return currentPage; }
 };
 
 #endif // DISPLAY_HANDLER_H 

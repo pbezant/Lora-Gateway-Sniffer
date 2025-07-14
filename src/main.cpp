@@ -134,26 +134,26 @@ void initializeDisplay() {
         return;
     }
     
-    displayHandler.showMessage("Display OK", 1000);
+            displayHandler.showMessage("Display OK");
     Serial.println(F("[MAIN] [SUCCESS] Display initialized"));
 }
 
 void initializeGPS() {
     Serial.println(F("[MAIN] Initializing GPS..."));
-    displayHandler.showMessage("Starting GPS...", 0);
+            displayHandler.showMessage("Starting GPS...");
     
     if (!gpsHandler.initialize()) {
         handleError("GPS initialization failed");
         return;
     }
     
-    displayHandler.showMessage("GPS Started", 1000);
+            displayHandler.showMessage("GPS Started");
     Serial.println(F("[MAIN] [SUCCESS] GPS initialized"));
 }
 
 void initializeLoRa() {
     Serial.println(F("[MAIN] Initializing LoRa..."));
-    displayHandler.showMessage("Starting LoRa...", 0);
+            displayHandler.showMessage("Starting LoRa...");
     
     // Initialize LoRa hardware
     if (!loraHandler.initialize()) {
@@ -161,25 +161,25 @@ void initializeLoRa() {
         return;
     }
     
-    displayHandler.showMessage("LoRa HW OK", 1000);
+            displayHandler.showMessage("LoRa HW OK");
     
     // Configure credentials
-    displayHandler.showMessage("Configuring...", 0);
+            displayHandler.showMessage("Configuring...");
     if (!loraHandler.configureCredentials()) {
         handleError("LoRa credential configuration failed");
         return;
     }
     
-    displayHandler.showMessage("Config OK", 1000);
+            displayHandler.showMessage("Config OK");
     
     // Attempt to join network
-    displayHandler.showMessage("Joining network...", 0);
+            displayHandler.showMessage("Joining network...");
     if (!loraHandler.joinNetwork()) {
         // Don't treat join failure as fatal error, it might succeed later
         Serial.println(F("[MAIN] [WARN] LoRa network join failed, will retry later"));
-        displayHandler.showMessage("Join failed", 2000);
+                    displayHandler.showMessage("Join failed");
     } else {
-        displayHandler.showSuccess("LoRa Joined!", 2000);
+        displayHandler.showSuccess("LoRa Joined!");
         Serial.println(F("[MAIN] [SUCCESS] LoRa network joined"));
     }
     
@@ -262,7 +262,7 @@ void handleError(const String& error) {
     currentState = STATE_ERROR;
     
     // Show error on display
-    displayHandler.showError(error, 3000);
+    displayHandler.showError(error);
 }
 
 void updateSystemStatus() {

@@ -88,21 +88,4 @@ function decodeUplink(input) {
             errors: ["Decode error: " + error.message]
         };
     }
-}
-
-// Test with sample binary data (status only - 12 bytes)
-const testStatusPayload = {
-    bytes: [0x01, 0x00, 0x00, 0x00, 0x7B, 0x01, 0x65, 0xC7, 0x00, 0x01, 0x33, 0x64]
-    // 0x01 = packet type, 0x0000007B = 123 seconds, 0x0165 = 357 KB, 0xC7 = -89 dBm, 0x00 = -20 dB, 0x0133 = 3.07V, 0x64 = 100%
-};
-
-console.log("Test status result:", decodeUplink(testStatusPayload));
-
-// Test with sample binary data (status + GPS - 23 bytes)
-const testGPSPayload = {
-    bytes: [0x02, 0x00, 0x00, 0x00, 0x7B, 0x01, 0x65, 0xC7, 0x00, 0x01, 0x33, 0x55, 
-            0x02, 0x6D, 0x5A, 0x70, 0xFB, 0x8A, 0x6F, 0x86, 0x00, 0x0A, 0x08]
-    // GPS data: lat=40.712776, lon=-74.005974, alt=10, sats=8
-};
-
-console.log("Test GPS result:", decodeUplink(testGPSPayload)); 
+} 

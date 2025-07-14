@@ -1,5 +1,5 @@
 {
-    "time": "2025-07-14T14:10:18.796257074+00:00",
+    "time": "2025-07-14T22:15:26.495142252+00:00",
     "deviceInfo": {
         "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
         "tenantName": "structuresense",
@@ -14,8 +14,8 @@
     },
     "level": "ERROR",
     "code": "UPLINK_CODEC",
-    "description": "decodeUplink returned errors: JSON parsing failed: unexpected token: 'Online'",
+    "description": "JS error: Error: console is not defined\n    at <eval> (eval_script:98:1)\n",
     "context": {
-        "deduplication_id": "7d9c4ba8-7369-4610-a703-a8928cd32a64"
+        "deduplication_id": "e5c758fe-a7e6-4a15-8a57-e94e4d6d0572"
     }
 }
