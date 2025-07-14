@@ -100,7 +100,6 @@ void initializeSystem() {
 
 void initializeDisplay() {
     Serial.println(F("[MAIN] Initializing display..."));
-    displayHandler.showMessage("Initializing...", 0);
     
     if (!displayHandler.initialize()) {
         handleError("Display initialization failed");

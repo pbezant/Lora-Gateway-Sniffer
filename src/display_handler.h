@@ -3,16 +3,18 @@
 
 #include <Arduino.h>
 #include <U8g2lib.h>
+#include <Wire.h>
 
-// Pin definitions for OLED display (Heltec Wireless Tracker V1.1)
-#define OLED_SDA    17
-#define OLED_SCL    18
-#define OLED_RST    21
+// Pin definitions for OLED display (Heltec Wireless Tracker v1.1)
+#define OLED_SDA    4
+#define OLED_SCL    15
+#define OLED_RST    16
 
 // Display configuration constants
 #define DISPLAY_WIDTH       128
 #define DISPLAY_HEIGHT      64
 #define DISPLAY_UPDATE_INTERVAL 1000  // Update display every 1 second
+#define DISPLAY_I2C_ADDRESS 0x3C      // Default I2C address for SSD1306
 
 // Display page enumeration
 enum DisplayPage {
@@ -25,7 +27,7 @@ enum DisplayPage {
 
 class DisplayHandler {
 private:
-    U8G2_SSD1306_128X64_NONAME_F_SW_I2C* display;
+    U8G2* display;
     DisplayPage currentPage;
     unsigned long lastUpdate;
     unsigned long lastPageSwitch;
@@ -36,6 +38,7 @@ private:
     void drawGPSPage();
     void drawLoRaPage();
     void drawSystemPage();
+    void drawMessage(const char* message);
     
     // Helper methods
     void drawHeader(const char* title);
@@ -43,6 +46,10 @@ private:
     void drawSignalBars(int x, int y, int bars, int maxBars);
     String formatUptime(unsigned long uptime);
     String formatMemory(size_t bytes);
+    
+    // Hardware methods
+    void resetDisplay();
+    bool scanI2CDevice(uint8_t address);
     
 public:
     DisplayHandler();
@@ -57,6 +64,7 @@ public:
     void turnOn();
     void turnOff();
     void setBrightness(uint8_t brightness);
+    void setContrast(uint8_t contrast);
     
     // Page management
     void nextPage();

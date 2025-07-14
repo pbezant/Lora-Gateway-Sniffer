@@ -13,59 +13,92 @@ DisplayHandler::~DisplayHandler() {
     Serial.println(F("[Display] Handler destroyed"));
 }
 
+void DisplayHandler::resetDisplay() {
+    Serial.println(F("[Display] Performing hardware reset..."));
+    
+    // Configure reset pin
+    pinMode(OLED_RST, OUTPUT);
+    
+    // Reset sequence: LOW -> delay -> HIGH -> delay
+    digitalWrite(OLED_RST, LOW);
+    delay(10);
+    digitalWrite(OLED_RST, HIGH);
+    delay(10);
+    
+    Serial.println(F("[Display] Hardware reset completed"));
+}
+
 bool DisplayHandler::initialize() {
     Serial.println(F("[Display] Initializing display handler..."));
     
-    // Create display instance using software I2C
-    display = new U8G2_SSD1306_128X64_NONAME_F_SW_I2C(U8G2_R0, OLED_SCL, OLED_SDA, OLED_RST);
+    Serial.printf("[Display] Using pins - SDA:%d, SCL:%d, RST:%d\n", 
+                  OLED_SDA, OLED_SCL, OLED_RST);
     
+    // Perform hardware reset first
+    resetDisplay();
+
+    // Use software I2C. The U8G2 library will handle the low-level communication.
+    display = new U8G2_SSD1306_128X64_NONAME_F_SW_I2C(U8G2_R0, OLED_SCL, OLED_SDA, OLED_RST);
+
     if (!display) {
         Serial.println(F("[Display] [ERROR] Failed to create display instance"));
         return false;
     }
     
-    // Initialize the display
-    if (!display->begin()) {
-        Serial.println(F("[Display] [ERROR] Failed to initialize display"));
-        delete display;
-        display = nullptr;
-        return false;
+    // Attempt to initialize at the default I2C address
+    Serial.println(F("[Display] Trying display->begin() at default address 0x3C..."));
+    if (display->begin()) {
+        Serial.println(F("[Display] [SUCCESS] Display initialized at 0x3C"));
+        initialized = true;
+
+        // Perform basic setup before drawing anything
+        display->setFont(u8g2_font_6x10_tf); // A simple, reliable font
+        display->setDrawColor(1);            // Set drawing color to ON
+
+        setContrast(10); // Set a low but visible contrast
+        showMessage("Display OK", 1000);
+        return true;
     }
-    
-    Serial.printf("[Display] Display initialized on pins SDA:%d, SCL:%d, RST:%d\n", 
-                  OLED_SDA, OLED_SCL, OLED_RST);
-    
-    // Set display parameters
-    display->setContrast(255);
-    display->setFont(u8g2_font_6x10_tf);
-    
-    // Clear display and show initialization message
-    display->clearBuffer();
-    display->setDrawColor(1);
-    drawCenteredText("Gateway Sniffer", 20);
-    drawCenteredText("Initializing...", 35);
-    display->sendBuffer();
-    
-    initialized = true;
-    lastUpdate = millis();
-    
-    Serial.println(F("[Display] [SUCCESS] Display handler initialized"));
-    return true;
+
+    // If that fails, try the alternate I2C address
+    Serial.println(F("[Display] Begin failed at 0x3C. Trying alternate address 0x3D..."));
+    display->setI2CAddress(0x3D);
+    if (display->begin()) {
+        Serial.println(F("[Display] [SUCCESS] Display initialized at 0x3D"));
+        initialized = true;
+
+        // Perform basic setup before drawing anything
+        display->setFont(u8g2_font_6x10_tf); // A simple, reliable font
+        display->setDrawColor(1);            // Set drawing color to ON
+
+        setContrast(10); // Set a low but visible contrast
+        showMessage("Display OK", 1000);
+        return true;
+    }
+
+    Serial.println(F("[Display] [FATAL] display->begin() failed at both 0x3C and 0x3D. Check hardware."));
+    delete display;
+    display = nullptr;
+    return false;
+}
+
+void DisplayHandler::setContrast(uint8_t contrast) {
+    if (!initialized || !display) return;
+    display->setContrast(contrast);
 }
 
 void DisplayHandler::update() {
     if (!initialized || !display) return;
     
-    // Check if it's time to update
-    if (millis() - lastUpdate < DISPLAY_UPDATE_INTERVAL) return;
-    
-    // Auto-switch pages every 5 seconds
+    if (millis() - lastUpdate < DISPLAY_UPDATE_INTERVAL) {
+        return;
+    }
+    lastUpdate = millis();
+
     if (millis() - lastPageSwitch > 5000) {
         nextPage();
-        lastPageSwitch = millis();
     }
     
-    // Clear buffer and draw current page
     display->clearBuffer();
     
     switch (currentPage) {
@@ -82,13 +115,11 @@ void DisplayHandler::update() {
             drawSystemPage();
             break;
         default:
-            drawStatusPage();
+            drawMessage("Unknown Page");
             break;
     }
     
-    // Send buffer to display
     display->sendBuffer();
-    lastUpdate = millis();
 }
 
 void DisplayHandler::drawStatusPage() {
@@ -295,7 +326,9 @@ void DisplayHandler::setBrightness(uint8_t brightness) {
 }
 
 void DisplayHandler::nextPage() {
-    currentPage = (DisplayPage)((currentPage + 1) % PAGE_COUNT);
+    if (!initialized || !display) return;
+    currentPage = static_cast<DisplayPage>((currentPage + 1) % PAGE_COUNT);
+    lastPageSwitch = millis();
 }
 
 void DisplayHandler::previousPage() {
@@ -390,6 +423,11 @@ void DisplayHandler::printStatus() {
     Serial.printf("[Display] Initialized: %s\n", initialized ? "Yes" : "No");
     Serial.printf("[Display] Current page: %d\n", currentPage);
     Serial.printf("[Display] Last update: %lu ms ago\n", millis() - lastUpdate);
+}
+
+void DisplayHandler::drawMessage(const char* message) {
+    display->setFont(u8g2_font_helvR14_tf);
+    display->drawStr(0, 15, message);
 }
 
 void DisplayHandler::drawCenteredText(const char* text, int y) {
