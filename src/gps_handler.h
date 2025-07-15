@@ -4,12 +4,7 @@
 #include <Arduino.h>
 #include <TinyGPS++.h>
 #include <HardwareSerial.h>
-
-// Pin definitions for GPS (Heltec Wireless Tracker V1.1)
-#define GPS_TX_PIN      33
-#define GPS_RX_PIN      34
-#define GPS_PWR_PIN     3       // V1.1 power control pin - must be HIGH to enable GPS
-#define GPS_BAUD_RATE   9600
+#include "Config.h"
 
 // GPS configuration constants
 #define GPS_UPDATE_INTERVAL     1000    // Update GPS data every 1 second

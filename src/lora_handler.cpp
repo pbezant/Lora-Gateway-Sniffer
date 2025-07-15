@@ -1,9 +1,14 @@
 #include "lora_handler.h"
 #include "secrets.h"
+#include <SPI.h>
+#include "Config.h"
 
 // Define static constants
 const float LoRaHandler::SIGNAL_CHANGE_THRESHOLD = 10.0; // dBm change threshold
 const unsigned long LoRaHandler::MIN_DISCOVERY_INTERVAL = 30000; // 30 seconds minimum between discoveries
+
+// Add global or class member for SPI
+SPIClass spiLoRa(FSPI);
 
 LoRaHandler::LoRaHandler() : 
     radio(nullptr), 
@@ -36,9 +41,20 @@ LoRaHandler::~LoRaHandler() {
 
 bool LoRaHandler::initialize() {
     Serial.println(F("[LoRa] Initializing LoRa handler..."));
-    
-    // Create radio instance
-    radio = new SX1262(new Module(LORA_CS, LORA_DIO1, LORA_RST, LORA_BUSY));
+    Serial.printf("[LoRa] Pin mapping: CS=%d, DIO1=%d, RST=%d, BUSY=%d, SCK=%d, MISO=%d, MOSI=%d\n", LORA_CS, LORA_DIO1, LORA_RST, LORA_BUSY, LORA_SCK, LORA_MISO, LORA_MOSI);
+
+    // Ensure VEXT is enabled before LoRa init (if not already done)
+    pinMode(VEXT_PIN, OUTPUT);
+    digitalWrite(VEXT_PIN, HIGH);
+    Serial.println(F("[LoRa] VEXT power enabled for LoRa"));
+    delay(50); // Let power rail stabilize
+
+    // Initialize FSPI for LoRa
+    spiLoRa.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_CS);
+    Serial.println(F("[LoRa] FSPI bus initialized for LoRa"));
+
+    // Create radio instance with explicit SPI (pass reference, not pointer)
+    radio = new SX1262(new Module(LORA_CS, LORA_DIO1, LORA_RST, LORA_BUSY, spiLoRa));
     if (!radio) {
         Serial.println(F("[LoRa] [ERROR] Failed to create radio instance"));
         return false;
@@ -162,23 +178,32 @@ bool LoRaHandler::sendData(const String& data, uint8_t port, bool confirmed) {
         Serial.println(F("[LoRa] [ERROR] Not initialized or not joined"));
         return false;
     }
-    
+
+    // Print current frame counter (if available)
+    Serial.printf("[LoRa] [DEBUG] Before uplink: isActivated=%d\n", node->isActivated());
+    Serial.printf("[LoRa] [DEBUG] Uplink frame counter (fCnt): %lu\n", node->getFCntUp());
+
     Serial.printf("[LoRa] Sending data on port %d: %s\n", port, data.c_str());
-    
+
     String dataToSend = data; // Create non-const copy
     int16_t state = node->uplink(dataToSend, port, confirmed);
     if (state == RADIOLIB_ERR_NONE) {
         Serial.println(F("[LoRa] [SUCCESS] ✅ Data sent successfully"));
         lastSendTime = millis();
-        
-        // Update signal quality
         lastRssi = radio->getRSSI();
         lastSnr = radio->getSNR();
-        
+        Serial.printf("[LoRa] [DEBUG] After uplink: isActivated=%d\n", node->isActivated());
+        Serial.printf("[LoRa] [DEBUG] Uplink frame counter (fCnt): %lu\n", node->getFCntUp());
         return true;
     } else {
         Serial.printf("[LoRa] [ERROR] ❌ Failed to send data, code: %d (%s)\n", state, getErrorString(state).c_str());
         lastErrorCode = state;
+        // If -1108, try to clear persistence and rejoin
+        if (state == -1108) {
+            Serial.println(F("[LoRa] [WARN] -1108 error: clearing persistence and rejoining..."));
+            clearPersistence();
+            joinNetwork();
+        }
         return false;
     }
 }

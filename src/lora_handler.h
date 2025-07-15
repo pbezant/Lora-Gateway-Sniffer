@@ -3,17 +3,7 @@
 
 #include <Arduino.h>
 #include <RadioLib.h>
-
-// Pin definitions for Heltec Wireless Tracker v1.1
-#define LORA_CS     8
-#define LORA_RST    12
-#define LORA_DIO1   14
-#define LORA_BUSY   13
-
-// LoRaWAN configuration
-#define LORA_SEND_INTERVAL 60000  // Send data every 60 seconds
-#define LORA_JOIN_TIMEOUT  30000  // Join timeout in milliseconds
-#define LORA_RETRY_DELAY   10000  // Retry delay between join attempts
+#include "Config.h"
 
 class LoRaHandler {
 private:

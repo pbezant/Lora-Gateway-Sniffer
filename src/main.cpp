@@ -2,6 +2,7 @@
 #include "display_handler.h"
 #include "gps_handler.h"
 #include "lora_handler.h"
+#include "Config.h"
 
 // Global handler instances
 DisplayHandler displayHandler;
@@ -41,12 +42,9 @@ void onJoinAccept();
 
 // Helper function to read battery voltage from GPIO 15
 float readBatteryVoltage() {
-    // GPIO 15 is the confirmed battery voltage pin for Heltec Wireless Tracker v1.1
-    const int BATTERY_PIN = 15;
-    
+    // Use BATTERY_PIN from Config.h
     uint32_t reading = analogReadMilliVolts(BATTERY_PIN);
     float voltage = (2.0f * reading) / 1000.0f; // Assume 2:1 voltage divider
-    
     Serial.printf("[MAIN] Battery voltage on GPIO %d: %.3f V\n", BATTERY_PIN, voltage);
     return voltage;
 }
@@ -74,6 +72,12 @@ void setup() {
     Serial.println(F("ESP32-S3 with SX1262 LoRa"));
     Serial.println(F("===============================\n"));
     
+    // Initialize user button and LED
+    pinMode(USER_BUTTON_PIN, INPUT_PULLUP);
+    pinMode(USER_LED_PIN, OUTPUT);
+    digitalWrite(USER_LED_PIN, LOW);
+    Serial.println(F("[MAIN] User button and LED initialized"));
+
     // Initialize system components
     initializeSystem();
     
@@ -82,6 +86,11 @@ void setup() {
     
     currentState = STATE_RUNNING;
 }
+
+// Add button state tracking for page switching
+bool lastButtonState = HIGH;
+unsigned long lastButtonDebounce = 0;
+const unsigned long debounceDelay = 50;
 
 void loop() {
     switch (currentState) {
@@ -108,6 +117,19 @@ void loop() {
     
     // Small delay to prevent tight loop
     delay(100);
+
+    // Handle user button for page switching
+    bool buttonState = digitalRead(USER_BUTTON_PIN);
+    if (buttonState == LOW && lastButtonState == HIGH && (millis() - lastButtonDebounce > debounceDelay)) {
+        lastButtonDebounce = millis();
+        displayHandler.nextPage();
+        Serial.println(F("[MAIN] User button pressed: switched display page"));
+        // Blink LED to indicate action
+        digitalWrite(USER_LED_PIN, HIGH);
+        delay(50);
+        digitalWrite(USER_LED_PIN, LOW);
+    }
+    lastButtonState = buttonState;
 }
 
 void initializeSystem() {
@@ -289,6 +311,7 @@ void updateSystemStatus() {
 
 void sendPeriodicData() {
     Serial.println(F("[MAIN] Sending periodic data..."));
+    digitalWrite(USER_LED_PIN, HIGH);
     
     // Get current data
     unsigned long uptime = millis() - bootTime;
@@ -316,6 +339,7 @@ void sendPeriodicData() {
     } else {
         Serial.println(F("[MAIN] Failed to send combined data"));
     }
+    digitalWrite(USER_LED_PIN, LOW);
 }
 
 void printSystemInfo() {

@@ -1,0 +1,365 @@
+[
+    {
+        "deduplicationId": "1744fc83-7aec-4ed4-a38d-e83833ad8dca",
+        "time": "2025-07-14T23:58:07.783+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "devAddr": "78000004",
+        "adr": true,
+        "dr": 0,
+        "fCnt": 0,
+        "fPort": 3,
+        "confirmed": false,
+        "data": "AAAAKwFnm6AEdAA=",
+        "object": {
+            "battery_voltage": 1.14,
+            "free_memory_kb": 359,
+            "rssi_dbm": -45,
+            "battery_percentage": 0,
+            "has_gps": false,
+            "snr_db": 8,
+            "uptime_hours": 0.01,
+            "uptime_seconds": 43
+        },
+        "rxInfo": [
+            {
+                "gatewayId": "34913d8d6343fa90",
+                "uplinkId": 50127,
+                "gwTime": "2025-07-14T23:58:07.783+00:00",
+                "nsTime": "2025-07-14T23:58:07.888782852+00:00",
+                "rssi": -67,
+                "snr": 13.8,
+                "context": "2s84TA==",
+                "metadata": {
+                    "network": "helium_iot",
+                    "gateway_name": "nutty-mahogany-eel",
+                    "regi": "US915",
+                    "gateway_id": "14jVANJQuHMCDtNxiQjgATUJDGfChreHA6CUvYZr8dKzcN4JRLn"
+                },
+                "crcStatus": "CRC_OK"
+            }
+        ],
+        "txInfo": {
+            "frequency": 904700000,
+            "modulation": {
+                "lora": {
+                    "bandwidth": 125000,
+                    "spreadingFactor": 10,
+                    "codeRate": "CR_4_5"
+                }
+            }
+        },
+        "regionConfigId": "us915_1"
+    },
+    {
+        "deduplicationId": "fdde4534-5235-4ecf-aad0-54b637e9f247",
+        "time": "2025-07-14T23:57:52.245+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "devAddr": "78000004",
+        "regionConfigId": "us915_1"
+    },
+    {
+        "time": "2025-07-14T23:57:35.500614693+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "level": "ERROR",
+        "code": "OTAA",
+        "description": "DevNonce has already been used",
+        "context": {
+            "deduplication_id": "6e79178a-d0b6-444e-a9f6-6036cc69a081"
+        }
+    },
+    {
+        "time": "2025-07-14T23:57:28.237121762+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "level": "ERROR",
+        "code": "OTAA",
+        "description": "DevNonce has already been used",
+        "context": {
+            "deduplication_id": "0bde87fc-78f0-4d12-881a-cafaf59557be"
+        }
+    },
+    {
+        "deduplicationId": "dfad277b-6e08-49a1-b84c-ecf037e6a022",
+        "time": "2025-07-14T23:48:08.303+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "devAddr": "78000000",
+        "adr": true,
+        "dr": 0,
+        "fCnt": 0,
+        "fPort": 3,
+        "confirmed": false,
+        "data": "AAAAGwFnlqEEcgA=",
+        "object": {
+            "rssi_dbm": -50,
+            "uptime_seconds": 27,
+            "battery_percentage": 0,
+            "battery_voltage": 1.138,
+            "has_gps": false,
+            "snr_db": 8.25,
+            "free_memory_kb": 359,
+            "uptime_hours": 0.01
+        },
+        "rxInfo": [
+            {
+                "gatewayId": "34913d8d6343fa90",
+                "uplinkId": 3431,
+                "gwTime": "2025-07-14T23:48:08.303+00:00",
+                "nsTime": "2025-07-14T23:48:08.421752889+00:00",
+                "rssi": -66,
+                "snr": 10.8,
+                "context": "txKtzA==",
+                "metadata": {
+                    "regi": "US915",
+                    "gateway_name": "nutty-mahogany-eel",
+                    "gateway_id": "14jVANJQuHMCDtNxiQjgATUJDGfChreHA6CUvYZr8dKzcN4JRLn",
+                    "network": "helium_iot"
+                },
+                "crcStatus": "CRC_OK"
+            }
+        ],
+        "txInfo": {
+            "frequency": 903900000,
+            "modulation": {
+                "lora": {
+                    "bandwidth": 125000,
+                    "spreadingFactor": 10,
+                    "codeRate": "CR_4_5"
+                }
+            }
+        },
+        "regionConfigId": "us915_1"
+    },
+    {
+        "deduplicationId": "45473a42-3de4-4843-88dc-679aac96468d",
+        "time": "2025-07-14T23:47:52.316+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "devAddr": "78000000",
+        "regionConfigId": "us915_1"
+    },
+    {
+        "time": "2025-07-14T23:47:45.409382147+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "level": "ERROR",
+        "code": "OTAA",
+        "description": "DevNonce has already been used",
+        "context": {
+            "deduplication_id": "bc04bdae-9df3-4915-b0c2-0544447de457"
+        }
+    },
+    {
+        "deduplicationId": "58ea6b42-e730-4a64-a2e9-876530cedd44",
+        "time": "2025-07-14T23:43:15.467+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "devAddr": "78000005",
+        "adr": true,
+        "dr": 4,
+        "fCnt": 0,
+        "fPort": 3,
+        "confirmed": false,
+        "data": "AAAACQFnkLUEbAA=",
+        "object": {
+            "rssi_dbm": -56,
+            "snr_db": 13.25,
+            "free_memory_kb": 359,
+            "uptime_seconds": 9,
+            "uptime_hours": 0,
+            "battery_percentage": 0,
+            "battery_voltage": 1.132,
+            "has_gps": false
+        },
+        "rxInfo": [
+            {
+                "gatewayId": "34913d8d6343fa90",
+                "uplinkId": 61303,
+                "gwTime": "2025-07-14T23:43:15.467+00:00",
+                "nsTime": "2025-07-14T23:43:15.574129614+00:00",
+                "rssi": -80,
+                "snr": 11,
+                "context": "pZ4BEw==",
+                "metadata": {
+                    "network": "helium_iot",
+                    "regi": "US915",
+                    "gateway_name": "nutty-mahogany-eel",
+                    "gateway_id": "14jVANJQuHMCDtNxiQjgATUJDGfChreHA6CUvYZr8dKzcN4JRLn"
+                },
+                "crcStatus": "CRC_OK"
+            }
+        ],
+        "txInfo": {
+            "frequency": 904600000,
+            "modulation": {
+                "lora": {
+                    "bandwidth": 500000,
+                    "spreadingFactor": 8,
+                    "codeRate": "CR_4_5"
+                }
+            }
+        },
+        "regionConfigId": "us915_1"
+    },
+    {
+        "deduplicationId": "c2aa08db-5d8a-4387-af83-9c2123360b79",
+        "time": "2025-07-14T23:43:09.611+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "devAddr": "78000005",
+        "regionConfigId": "us915_1"
+    },
+    {
+        "deduplicationId": "976f7d56-ad5e-4175-bf65-d6f84fdd1ad7",
+        "time": "2025-07-14T23:42:48.307+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "devAddr": "78000005",
+        "regionConfigId": "us915_1"
+    },
+    {
+        "time": "2025-07-14T23:42:31.680428047+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "level": "ERROR",
+        "code": "OTAA",
+        "description": "DevNonce has already been used",
+        "context": {
+            "deduplication_id": "19d75e41-1027-4102-9db8-9d2a04a4cd2e"
+        }
+    },
+    {
+        "time": "2025-07-14T23:42:24.652891346+00:00",
+        "deviceInfo": {
+            "tenantId": "0c6e58d9-cd0d-4ccd-84eb-29899e100fc4",
+            "tenantName": "structuresense",
+            "applicationId": "e846ed91-61de-4605-a1b1-9738d526680d",
+            "applicationName": "StructureSense",
+            "deviceProfileId": "fc1221aa-fbf1-4e28-837b-885387d2022c",
+            "deviceProfileName": "Gateway Sniffer",
+            "deviceName": "Gateway Sniffer",
+            "devEui": "451cd5860faea7db",
+            "deviceClassEnabled": "CLASS_A",
+            "tags": {}
+        },
+        "level": "ERROR",
+        "code": "OTAA",
+        "description": "DevNonce has already been used",
+        "context": {
+            "deduplication_id": "d833bb3a-8e63-4ac3-8cd8-859b6164ceb7"
+        }
+    }
+]

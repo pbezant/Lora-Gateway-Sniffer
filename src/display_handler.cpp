@@ -22,7 +22,17 @@ void DisplayHandler::controlBacklight(bool state) {
 
 bool DisplayHandler::initialize() {
     Serial.println(F("[Display] Initializing TFT LCD display..."));
-    
+
+    // Power up VEXT and VTFT for display
+    pinMode(VEXT_PIN, OUTPUT);
+    digitalWrite(VEXT_PIN, HIGH);
+    Serial.println(F("[Display] VEXT power enabled"));
+    delay(10);
+    pinMode(VTFT_PIN, OUTPUT);
+    digitalWrite(VTFT_PIN, HIGH);
+    Serial.println(F("[Display] VTFT power enabled"));
+    delay(10);
+
     Serial.printf("[Display] Using pins - CS:%d, DC:%d, MOSI:%d, SCLK:%d, RST:%d, BLK:%d\n", 
                   TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST, TFT_BLK);
     
@@ -269,4 +279,18 @@ void DisplayHandler::updateSystemInfo(unsigned long uptime, unsigned long freeHe
 void DisplayHandler::printStatus() {
     Serial.printf("[Display] Status - Page: %d, Initialized: %s\n", 
                   currentPage, initialized ? "YES" : "NO");
+} 
+
+// Optionally, add methods to control VTFT/VEXT
+void DisplayHandler::enableDisplayPower() {
+    pinMode(VTFT_PIN, OUTPUT);
+    digitalWrite(VTFT_PIN, HIGH);
+    pinMode(VEXT_PIN, OUTPUT);
+    digitalWrite(VEXT_PIN, HIGH);
+    Serial.println(F("[Display] Display power enabled (VTFT/VEXT)"));
+}
+void DisplayHandler::disableDisplayPower() {
+    digitalWrite(VTFT_PIN, LOW);
+    digitalWrite(VEXT_PIN, LOW);
+    Serial.println(F("[Display] Display power disabled (VTFT/VEXT)"));
 } 

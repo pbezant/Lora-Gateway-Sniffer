@@ -5,14 +5,7 @@
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
-
-// Pin definitions for TFT LCD display (Heltec Wireless Tracker V1.1) - FROM OFFICIAL SPECS!
-#define TFT_CS      38   // Chip Select (GPIO38 = TFT_CS)
-#define TFT_RST     39   // Reset (GPIO39 = TFT_RES)
-#define TFT_DC      40   // Data/Command (GPIO40 = TFT_RS)
-#define TFT_SCLK    41   // SPI Clock (GPIO41 = TFT_SCLK)
-#define TFT_MOSI    42   // SPI Data (GPIO42 = TFT_SDIN)
-#define TFT_BLK     21   // Backlight (GPIO21 = TFT_LED_K) - CRITICAL!
+#include "Config.h"
 
 // Display dimensions for Heltec Wireless Tracker V1.1
 #ifndef DISPLAY_WIDTH
@@ -94,6 +87,8 @@ public:
     
     bool isInitialized() const { return initialized; }
     DisplayPage getCurrentPage() const { return currentPage; }
+    void enableDisplayPower();
+    void disableDisplayPower();
 };
 
 #endif // DISPLAY_HANDLER_H 
