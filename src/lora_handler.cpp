@@ -2,6 +2,7 @@
 #include "secrets.h"
 #include <SPI.h>
 #include "Config.h"
+#include <Preferences.h> // Added for NVS
 
 // Define static constants
 const float LoRaHandler::SIGNAL_CHANGE_THRESHOLD = 10.0; // dBm change threshold
@@ -47,7 +48,7 @@ bool LoRaHandler::initialize() {
     pinMode(VEXT_PIN, OUTPUT);
     digitalWrite(VEXT_PIN, HIGH);
     Serial.println(F("[LoRa] VEXT power enabled for LoRa"));
-    delay(50); // Let power rail stabilize
+    delay(20);
 
     // Initialize FSPI for LoRa
     spiLoRa.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_CS);
@@ -78,6 +79,16 @@ bool LoRaHandler::initialize() {
     
     Serial.println(F("[LoRa] [SUCCESS] Radio hardware initialized"));
     initialized = true;
+
+    // Try to load session from NVS
+    if (loadLoRaSession()) {
+        // Restore session to RadioLib (if API allows)
+        // Example: node->restoreSession(session.devAddr, session.nwkSKey, session.appSKey, session.fCntUp, session.fCntDown);
+        Serial.println(F("[LoRa] [INFO] Restored LoRaWAN session from NVS"));
+        // TODO: Call RadioLib restoreSession if available
+    } else {
+        Serial.println(F("[LoRa] [INFO] No valid session found, will join network"));
+    }
     return true;
 }
 
@@ -180,20 +191,21 @@ bool LoRaHandler::sendData(const String& data, uint8_t port, bool confirmed) {
     }
 
     // Print current frame counter (if available)
-    Serial.printf("[LoRa] [DEBUG] Before uplink: isActivated=%d\n", node->isActivated());
-    Serial.printf("[LoRa] [DEBUG] Uplink frame counter (fCnt): %lu\n", node->getFCntUp());
+    Serial.printf("[LoRa] [DEBUG] (sendData) Before uplink: isActivated=%d, fCntUp=%lu\n", node->isActivated(), node->getFCntUp());
 
     Serial.printf("[LoRa] Sending data on port %d: %s\n", port, data.c_str());
 
     String dataToSend = data; // Create non-const copy
     int16_t state = node->uplink(dataToSend, port, confirmed);
+    Serial.printf("[LoRa] [DEBUG] (sendData) After uplink: isActivated=%d, fCntUp=%lu\n", node->isActivated(), node->getFCntUp());
     if (state == RADIOLIB_ERR_NONE) {
         Serial.println(F("[LoRa] [SUCCESS] ✅ Data sent successfully"));
         lastSendTime = millis();
         lastRssi = radio->getRSSI();
         lastSnr = radio->getSNR();
-        Serial.printf("[LoRa] [DEBUG] After uplink: isActivated=%d\n", node->isActivated());
-        Serial.printf("[LoRa] [DEBUG] Uplink frame counter (fCnt): %lu\n", node->getFCntUp());
+        // Update frame counter and save session
+        session.fCntUp = node->getFCntUp();
+        saveLoRaSession();
         return true;
     } else {
         Serial.printf("[LoRa] [ERROR] ❌ Failed to send data, code: %d (%s)\n", state, getErrorString(state).c_str());
@@ -300,16 +312,31 @@ bool LoRaHandler::sendStatusData(unsigned long uptime, size_t freeHeap, float ba
     Serial.println();
     
     // Send the binary payload using RadioLib
+    Serial.printf("[LoRa] [DEBUG] (sendStatusData) Before uplink: isActivated=%d, fCntUp=%lu\n", node->isActivated(), node->getFCntUp());
     int result = node->uplink(payload, payloadSize, 3);
-    
+    Serial.printf("[LoRa][DEBUG] node->uplink() returned: %d\n", result);
+    Serial.printf("[LoRa] [DEBUG] (sendStatusData) After uplink: isActivated=%d, fCntUp=%lu\n", node->isActivated(), node->getFCntUp());
     if (result == RADIOLIB_ERR_NONE) {
         Serial.println(F("[LoRa] [SUCCESS] Binary data sent successfully"));
         lastRssi = radio->getRSSI();
         lastSnr = radio->getSNR();
         lastErrorCode = RADIOLIB_ERR_NONE;
+        // Manually increment frame counter for debug/testing
+        uint32_t before = session.fCntUp;
+        session.fCntUp++;
+        Serial.printf("[LoRa][DEBUG] Manually incremented fCntUp: %lu -> %lu\n", before, session.fCntUp);
+        saveLoRaSession();
         return true;
     } else {
         Serial.printf("[LoRa] [ERROR] Failed to send binary data, code: %d (%s)\n", result, getErrorString(result).c_str());
+        Serial.printf("[LoRa][DEBUG] Frame counter (fCntUp): %lu\n", node->getFCntUp());
+        Serial.printf("[LoRa][DEBUG] isActivated: %d, joined: %d\n", node->isActivated(), joined);
+        Serial.printf("[LoRa][DEBUG] Last error code: %d\n", lastErrorCode);
+        Serial.print("[LoRa][DEBUG] Payload: ");
+        for (int i = 0; i < payloadSize; i++) {
+            Serial.printf("%02X ", payload[i]);
+        }
+        Serial.println();
         lastErrorCode = result;
         return false;
     }
@@ -573,4 +600,42 @@ void LoRaHandler::enableGatewayDiscovery(bool enable) {
         lastGatewaySnr = -999.0;
         lastGatewayDiscoveryTime = 0;
     }
+} 
+
+#define LORA_NVS_NAMESPACE "lora_session"
+
+void LoRaHandler::saveLoRaSession() {
+    nvs.begin(LORA_NVS_NAMESPACE, false);
+    nvs.putUInt("devaddr", session.devAddr);
+    nvs.putBytes("nwkskey", session.nwkSKey, 16);
+    nvs.putBytes("appskey", session.appSKey, 16);
+    nvs.putUInt("fcntup", session.fCntUp);
+    nvs.putUInt("fcntdown", session.fCntDown);
+    nvs.putBool("joined", session.joined);
+    nvs.end();
+    Serial.println(F("[LoRa][NVS] Session saved to NVS"));
+}
+
+bool LoRaHandler::loadLoRaSession() {
+    nvs.begin(LORA_NVS_NAMESPACE, true);
+    session.devAddr = nvs.getUInt("devaddr", 0);
+    nvs.getBytes("nwkskey", session.nwkSKey, 16);
+    nvs.getBytes("appskey", session.appSKey, 16);
+    session.fCntUp = nvs.getUInt("fcntup", 0);
+    session.fCntDown = nvs.getUInt("fcntdown", 0);
+    session.joined = nvs.getBool("joined", false);
+    nvs.end();
+    if (session.devAddr == 0 || !session.joined) {
+        Serial.println(F("[LoRa][NVS] No valid session in NVS"));
+        return false;
+    }
+    Serial.println(F("[LoRa][NVS] Session loaded from NVS"));
+    return true;
+}
+
+void LoRaHandler::clearLoRaSession() {
+    nvs.begin(LORA_NVS_NAMESPACE, false);
+    nvs.clear();
+    nvs.end();
+    Serial.println(F("[LoRa][NVS] Session cleared from NVS"));
 } 

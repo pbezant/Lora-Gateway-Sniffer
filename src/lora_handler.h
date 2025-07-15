@@ -4,6 +4,16 @@
 #include <Arduino.h>
 #include <RadioLib.h>
 #include "Config.h"
+#include <Preferences.h>
+
+struct LoRaSession {
+    uint32_t devAddr;
+    uint8_t nwkSKey[16];
+    uint8_t appSKey[16];
+    uint32_t fCntUp;
+    uint32_t fCntDown;
+    bool joined;
+};
 
 class LoRaHandler {
 private:
@@ -29,6 +39,11 @@ private:
     // Internal methods
     void printJoinStatus();
     void printCredentials();
+    Preferences nvs;
+    LoRaSession session;
+    void saveLoRaSession();
+    bool loadLoRaSession();
+    void clearLoRaSession();
     
 public:
     LoRaHandler();

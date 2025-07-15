@@ -107,7 +107,7 @@ void DisplayHandler::showMessage(const char* message) {
     Serial.printf("[Display] Showing message: %s\n", message);
     
     display.fillScreen(ST7735_BLACK);
-    display.setTextColor(ST7735_WHITE);
+    display.setTextColor(ST7735_GREEN); // Changed from WHITE to GREEN
     display.setTextSize(1);
     
     // Center the message

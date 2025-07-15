@@ -268,6 +268,7 @@ void handleMainLoop() {
     // Send periodic data if LoRa is connected
     if (loraHandler.isJoined() && (millis() - lastLoRaSend > PERIODIC_INTERVAL)) {
         sendPeriodicData();
+        delay(2000); // Prevent rapid retries, always wait 2 seconds after send
         lastLoRaSend = millis();
     }
     
